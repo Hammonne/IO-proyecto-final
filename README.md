@@ -274,19 +274,17 @@ IO1Lab a las 09:40 del 10/11.
 | Inst | Mejor valor | Método | Archivo | Líder IO1Lab | Estado |
 |---|---|---|---|---|---|
 | 01 | 326.66 | v4 (ALNS) | `solucion_4/resultados/instancia_01_io1lab.txt` | 326.60 | falta 0.06 |
-| 02 | 405.59 | v4 (ALNS, 10 rondas, corrida de la compañera) | en su carpeta `solucion_4/resultados/` (falta agregarlo al repo) | 404.00 | falta 1.59 |
+| 02 | 405.59 | v4 (ALNS sin visitas, 10 rondas, corrida de la compañera) | `solucion_4/resultados/instancia_02_io1lab.txt` | 404.00 | falta 1.59 |
 | 03 | 476.44 | v3/v4 | `solucion_4/resultados/instancia_03_io1lab.txt` | 475.92 | falta 0.52 |
-| 04 | 525.92 | v4 (corrida de la compañera) | en su carpeta (falta agregarlo al repo) | 526.40 (nuestro) | primeros |
-| 05 | 591.34 | v4 (corrida de la compañera) | en su carpeta (falta agregarlo al repo) | 591.40 (nuestro) | primeros |
-| 06 | 754.24 | v4 (corrida de la compañera) | en su carpeta (falta agregarlo al repo) | 754.42 (nuestro) | primeros |
+| 04 | 525.92 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_04_io1lab.txt` | 526.40 (nuestro) | primeros |
+| 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_05_io1lab.txt` | 591.40 (nuestro) | primeros |
+| 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_06_io1lab.txt` | 754.42 (nuestro) | primeros |
 | 07 | 906.69 | v4 (ALNS) | `solucion_4/resultados/instancia_07_io1lab.txt` | 905.69 | falta 1.00 |
 | 08 | 1090.72 | v5 (tabú) | `solucion_5/resultados/instancia_08_io1lab.txt` (copiado también a `solucion_4/resultados/`) | 1077.98 | falta 12.74 |
-| 09 | 964.21 | v4 (corrida de la compañera) | en su carpeta (falta agregarlo al repo) | 964.36 (nuestro) | primeros |
-| 10 | 997.84 | v4 (corrida de la compañera) | en su carpeta (falta agregarlo al repo) | 998.97 (nuestro) | primeros |
+| 09 | 964.21 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_09_io1lab.txt` | 964.36 (nuestro) | primeros |
+| 10 | 997.63 | v4 sin visitas (compañera) + 1 visita intermedia agregada por descenso | `solucion_4/resultados/instancia_10_io1lab.txt` | 998.97 (nuestro) | primeros |
 
-En el repo, `solucion_4/resultados/` tiene la mejor versión guardada de cada instancia
-(02: 409.44, 04: 526.40, 05: 591.40, 06: 754.42, 09: 964.36 y 10: 998.97 mientras no se agreguen
-los archivos de la compañera).
+`solucion_4/resultados/` tiene la mejor solución de cada instancia (todas validadas como factibles).
 
 ## Resultados (promedio de finalización, s)
 
