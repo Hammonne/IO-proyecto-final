@@ -1,7 +1,4 @@
-#!/bin/bash
-# subir.sh — Sube los cambios del proyecto a GitHub
-cd "$(dirname "$0")"
 git add .
 git status --short
-git commit -m "Solución 4: rutas con visitas intermedias a o y f"
+git commit -m "README: papers por solución; modo de un núcleo en correr.sh"
 git push
