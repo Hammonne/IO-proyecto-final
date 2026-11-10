@@ -16,6 +16,7 @@
 # Nunca se corre la misma instancia dos veces a la vez (escriben al mismo
 # archivo). Con más de 8 instancias la Mac va más lenta (8 núcleos).
 #
+# Semillas nuevas: SEMILLA_BASE=20000 bash correr.sh ... (suma a la semilla)
 # Un solo núcleo: UN_NUCLEO=1 bash correr.sh ...  -> las instancias se
 # corren una tras otra (tarda instancias × rondas × SEGUNDOS en total).
 
@@ -30,7 +31,7 @@ export JULIA_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 for ronda in $(seq 1 "$RONDAS"); do
     echo "Ronda $ronda de $RONDAS ($(date +%H:%M)): $INSTANCIAS"
     for k in $INSTANCIAS; do
-        julia main.jl "instancias/instancia_$k.txt" "$SEGUNDOS" "$((ronda * 1000 + 10#$k))" \
+        julia main.jl "instancias/instancia_$k.txt" "$SEGUNDOS" "$((${SEMILLA_BASE:-0} + ronda * 1000 + 10#$k))" \
             > "logs/ronda${ronda}_$k.txt" 2>&1 &
         [ "${UN_NUCLEO:-0}" = 1 ] && wait      # una instancia a la vez
     done

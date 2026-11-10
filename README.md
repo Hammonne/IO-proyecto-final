@@ -10,6 +10,7 @@ solucion_5/   Solución 5: búsqueda tabú con lista de candidatos sobre el plan
 solucion_6/   Solución 6: híbrido tabú (v5) + patadas de destrucción/reparación (ALNS de la v4)
 solucion_7/   Solución 7: tabú con visitas + reoptimización exacta por ventanas (movimientos compuestos)
 solucion_8/   Solución 8: secuencia de inserción de Yin y Hu (2026) + tabú de la v7
+solucion_reglas_yampi/  Constructivo de reglas sin búsqueda (R1–R4 con excepciones S e Y), hecho por Yampi
   instancias/   Instancias convertidas a .txt
   resultados/   Soluciones generadas y archivos para IO1Lab
 ```
