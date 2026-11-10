@@ -48,6 +48,7 @@ function main(archivo, segundos, semilla)
     b = recocido_plan(ins, seq, plan, segundos; semilla)
     seq, plan, valor = b.mejor
     println("$base final: ", round(valor, digits = 2))
+    println("Patadas (diversificación): ", b.patadas)
     println("Pesos finales: ", join(["$n=$(round(w, digits = 2))" for (n, w) in zip(NOMBRES_VECINDADES, b.ad.pesos)], ", "))
     guardar_si_mejora(ins, base, seq, plan, valor)
 end

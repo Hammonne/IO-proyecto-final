@@ -51,6 +51,14 @@ mutable struct Busqueda
     mejor::Tuple{Vector{Vector{Int}},Plan,Float64}
     ad::Adaptativo
     iter::Int
+    t_mejora::Float64    # instante de la última mejora de la mejor solución
+    t_ciclo::Float64     # inicio del ciclo de enfriamiento actual
+    patadas::Int         # perturbaciones fuertes aplicadas
+end
+
+function Busqueda(seq, plan, val)
+    t = time()
+    return Busqueda((seq, plan, val), (seq, plan, val), Adaptativo(length(VECINDADES)), 0, t, t, 0)
 end
 
 # Un paso: vecino aleatorio, aceptación y premio a la vecindad usada
@@ -63,7 +71,7 @@ function paso_busqueda!(b, ins, temp, rng)
     b.ad.puntos[k] += premio(v2, val, b.mejor[3], aceptado)
     b.ad.usos[k] += 1
     aceptado && (b.actual = (s2, p2, v2))
-    v2 < b.mejor[3] - 1e-9 && (b.mejor = (s2, p2, v2))
+    v2 < b.mejor[3] - 1e-9 && (b.mejor = (s2, p2, v2); b.t_mejora = time())
 end
 
 function fin_de_segmento!(b, mostrar)
@@ -73,16 +81,50 @@ function fin_de_segmento!(b, mostrar)
         println("  iter $(b.iter): mejor ", round(b.mejor[3], digits = 2))
 end
 
-# temperatura(t0, tf, avance) está en recocido.jl (enfriamiento geométrico)
+# --- Diversificación: perturbación fuerte + recalentamiento ------
+# Si la mejor solución no mejora durante una fracción ESTANCAMIENTO del
+# tiempo total, se parte de la mejor y se aplican entre 3 y 8 movimientos
+# aleatorios factibles (sin importar si empeoran). Luego se reinicia el
+# enfriamiento desde una temperatura menor (RECALENTAR * t0), para que el
+# recocido explore alrededor de esa nueva solución (esquema tipo ILS).
+
+const ESTANCAMIENTO, RECALENTAR, MOVS_PATADA = 0.15, 0.5, 3:8
+
+function perturbar_plan(ins, sol, rng)
+    seq, plan, val = sol
+    for _ in 1:rand(rng, MOVS_PATADA), _ in 1:20          # hasta 20 intentos por movimiento
+        s2, p2 = rand(rng, VECINDADES)(ins, seq, plan, rng)
+        v2 = evaluar_plan(ins, s2, p2)
+        isfinite(v2) && ((seq, plan, val) = (s2, p2, v2); break)
+    end
+    return seq, plan, val
+end
+
+estancada(b, segundos) = time() - b.t_mejora > ESTANCAMIENTO * segundos
+
+function patear!(b, ins, rng, mostrar)
+    b.actual = perturbar_plan(ins, b.mejor, rng)
+    b.t_mejora = b.t_ciclo = time()
+    b.patadas += 1
+    mostrar && println("  patada $(b.patadas): mejor ", round(b.mejor[3], digits = 2),
+                       " -> parte de ", round(b.actual[3], digits = 2))
+end
+
+# Temperatura dentro del ciclo actual (el primero empieza más caliente)
+function temperatura_ciclo(b, t0, tf, fin)
+    avance = (time() - b.t_ciclo) / max(fin - b.t_ciclo, 1e-9)
+    return temperatura(b.patadas == 0 ? t0 : RECALENTAR * t0, tf, min(avance, 1.0))
+end
 
 function recocido_plan(ins, seq, plan, segundos; semilla = 1, mostrar = true)
-    rng, inicio = MersenneTwister(semilla), time()
+    rng, fin = MersenneTwister(semilla), time() + segundos
     val = evaluar_plan(ins, seq, plan)
-    b = Busqueda((seq, plan, val), (seq, plan, val), Adaptativo(length(VECINDADES)), 0)
-    t0, tf = 0.003 * val, 0.00002 * val
-    while (avance = (time() - inicio) / segundos) < 1
-        paso_busqueda!(b, ins, temperatura(t0, tf, avance), rng)
-        (b.iter += 1) % LARGO_SEGMENTO == 0 && fin_de_segmento!(b, mostrar)
+    b, t0, tf = Busqueda(seq, plan, val), 0.003 * val, 0.00002 * val
+    while time() < fin
+        paso_busqueda!(b, ins, temperatura_ciclo(b, t0, tf, fin), rng)
+        (b.iter += 1) % LARGO_SEGMENTO == 0 || continue
+        fin_de_segmento!(b, mostrar)
+        estancada(b, segundos) && fin - time() > 0.1 * segundos && patear!(b, ins, rng, mostrar)
     end
     return b
 end
