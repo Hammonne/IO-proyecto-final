@@ -1,8 +1,10 @@
 # ============================================================
 # reparacion.jl — Operadores de reparación del ALNS (inserción secuencial)
 # ============================================================
-# Los lotes quitados se reinsertan uno a uno (inserción secuencial, como
-# el SIA de Yin y Hu, 2026). Insertar un lote x = elegir
+# Los lotes quitados se reinsertan uno a uno en su mejor posición, cada
+# una evaluada con el decodificador completo (como la inserción voraz GIA
+# de Yin y Hu, 2026, apéndice E, que evalúa cada posición con su
+# simulador SIA). Insertar un lote x = elegir
 #   (1) máquina compatible j y posición k en su secuencia, y
 #   (2) dónde van sus dos paradas (abastecer en alfa_j, retirar en beta_j).
 # Opciones para cada parada:

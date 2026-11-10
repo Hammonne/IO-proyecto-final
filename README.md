@@ -9,6 +9,7 @@ solucion_4/   Solución 4: ALNS (destrucción y reparación) + pulido local sobr
 solucion_5/   Solución 5: búsqueda tabú con lista de candidatos sobre el plan de la solución 3
 solucion_6/   Solución 6: híbrido tabú (v5) + patadas de destrucción/reparación (ALNS de la v4)
 solucion_7/   Solución 7: tabú con visitas + reoptimización exacta por ventanas (movimientos compuestos)
+solucion_8/   Solución 8: secuencia de inserción de Yin y Hu (2026) + tabú de la v7
   instancias/   Instancias convertidas a .txt
   resultados/   Soluciones generadas y archivos para IO1Lab
 ```
@@ -108,7 +109,9 @@ de los lotes (tope 30), sesgado hacia valores chicos.
     hasta llegar a f.
   - *viajes*: todos los lotes de varios viajes seguidos de un AGV.
   - *segmento*: lotes consecutivos de una máquina.
-- **3 operadores de reparación** por **inserción secuencial** (como el SIA de Yin y Hu, 2026):
+- **3 operadores de reparación** por **inserción voraz**: cada lote se reinserta en su mejor
+  posición evaluada con el decodificador completo (como la inserción voraz GIA de Yin y Hu, 2026,
+  que evalúa cada posición con su simulador SIA):
   *voraz aleatorio*, *voraz SPT* y *arrepentimiento* (regret-2). Para cada lote:
   1. Se prueban las posiciones cercanas a donde estaba (misma fracción de la secuencia ± 4), en
      todas sus máquinas compatibles. Cada posición se evalúa con la mejor de dos colocaciones
@@ -266,6 +269,47 @@ llegó a alejarse un 20 %.
   probablemente requiere partir de otras soluciones iniciales, por ejemplo con más rondas y
   semillas, que fue lo que funcionó en la 02.
 
+### Solución 8 — secuencia de inserción (Yin y Hu, 2026) + tabú
+**Idea del paper.** En Yin y Hu (2026), la solución entera es **una permutación de los trabajos**.
+El vehículo que hace cada trabajo no se decide: lo toma el que lo atiende antes (su ec. 26), y el
+orden de las grúas sale de la misma permutación. Es otro espacio de búsqueda, con otros óptimos
+locales, y por eso se probó para la 01 y la 03.
+
+**Adaptación** (`secuencia.jl`):
+- **Solución:** (máquina de cada lote, secuencia Y de las 2n tareas "abastecer i" y "retirar i").
+  El orden de cada máquina es el orden de sus abastecimientos en Y.
+- **Decodificación** (análoga a su SIA): se recorre Y, y cada tarea se agrega al AGV y a la forma
+  (viaje nuevo, al final del viaje en curso, o tras una visita a o/f) que da la menor suma de
+  instantes de las tareas ya puestas. Los tiempos salen del decodificador exacto de la v4 aplicado
+  al plan parcial.
+- **Reparación** (análoga a su método A1): los retiros de cada máquina se reordenan según el orden
+  de la máquina, y un retiro que aparece antes que su abastecimiento se atiende justo después.
+- **Diferencia con el paper:** allí cada vehículo lleva 1 contenedor; aquí un AGV lleva hasta C
+  lotes, y por eso existe la opción de sumar la tarea al viaje en curso.
+
+**Búsqueda** (`busqueda_secuencia.jl`, como su SIA-ALNS): recocido con ruleta adaptativa y premios
+1.8/1.2/0.8/0.5. Movimientos: intercambiar o mover tareas cercanas, cambiar un lote de máquina, y
+reinsertar un bloque de tareas al inicio, al final o en medio (sus operadores por partes). Durante
+el 30 % del tiempo se busca sobre la secuencia; el resto, la tabú de la v7 pule el resultado.
+
+**Resultados (honestos): no mejora.**
+
+| Prueba | 01 | 03 |
+|---|---|---|
+| Mejor actual | 326.66 | 476.44 |
+| Mejor solución leída como secuencia y decodificada | 350.56 | 581.86 |
+| Búsqueda sobre la secuencia (90 s) | 339.57 | 557.14 |
+| v8 completa (5 min: secuencia + tabú) | 327.47 | 500.64 |
+
+- La regla "el AGV que atiende antes" es **miope** con AGVs de varios lotes: no puede representar
+  las buenas formas de armar viajes. Ni siquiera la mejor solución sobrevive a la decodificación.
+- En el paper funciona porque cada vehículo lleva un solo contenedor, y ahí la regla casi no
+  pierde nada.
+- Además, la decodificación es lenta en las instancias grandes (40 ms por evaluación en la 07,
+  frente a 0.1 ms del decodificador directo).
+- **Conclusión:** para este problema conviene más el plan explícito de viajes (v3–v7) que la
+  representación indirecta.
+
 ## Mejores valores (10/11/2026)
 
 Mejor solución factible de cada instancia y dónde está. "Líder" es el mejor valor del ranking de
@@ -314,10 +358,11 @@ Los números corresponden a la lista de referencias de abajo.
 | 1 | — | Solo reglas simples (carga mínima + SPT), sin literatura |
 | 2 | [1], [2], [3], [4] | [1]–[2]: asignación exacta R‖ΣC con el método húngaro (solución inicial) · [3]: recocido simulado · [4]: ILS |
 | 3 | [3], [4], [5], [7] | [5]: representación en dos capas máquinas + vehículos · [3]: recocido simulado · [7]: ruleta adaptativa de vecindades · [4]: perturbaciones tipo ILS |
-| 4 | [1], [2], [3], [5], [6], [7], [8] | [7]: esquema ALNS (destrucción/reparación, premios 33/9/13, eliminación de los peores) · [6]: eliminación de lotes relacionados (Shaw) · [8]: reparación por inserción secuencial · [1]–[2]: reinicios desde asignaciones húngaras perturbadas · [3]: aceptación de Metropolis · [5]: misma representación de la v3 |
+| 4 | [1], [2], [3], [5], [6], [7], [8] | [7]: esquema ALNS (destrucción/reparación, premios 33/9/13, eliminación de los peores) · [6]: eliminación de lotes relacionados (Shaw) · [8]: ALNS con recocido para un problema integrado con buffers limitados, e inserción voraz evaluada con simulación · [1]–[2]: reinicios desde asignaciones húngaras perturbadas · [3]: aceptación de Metropolis · [5]: misma representación de la v3 |
 | 5 | [5], [9], [10] | [9]–[10]: búsqueda tabú (lista tabú por atributos, aspiración, lista de candidatos) · [5]: misma representación de la v3 |
 | 6 | [5], [6], [7], [8], [9], [10] | [9]–[10]: búsqueda tabú como búsqueda local · [7]: destrucción/reparación y ruleta adaptativa como perturbación · [6], [8]: operadores de la v4 · [5]: misma representación |
 | 7 | [5], [9], [10], [11], [12], [13], [14], [15] | [9]–[10]: búsqueda tabú · [11]: ventanas exactas (POPMUSIC) · [12]: *dynasearch* · [13]: intercambio cíclico (VLSN) · [14]–[15]: Or-opt y movimiento de pares, usados en la revisión exhaustiva |
+| 8 | [8], [7], [9], [10] | [8]: secuencia de inserción, decodificación SIA, reparación A1 y operadores por partes · [7]: ruleta adaptativa · [9]–[10]: tabú para pulir |
 
 ## Referencias
 
@@ -329,7 +374,7 @@ Los números corresponden a la lista de referencias de abajo.
 5. Bilge, Ü. y Ulusoy, G. (1995). A time window approach to simultaneous scheduling of machines and material handling system in an FMS. *Operations Research*, 43(6), 1058–1070.
 6. Shaw, P. (1998). Using constraint programming and local search methods to solve vehicle routing problems. En *Principles and Practice of Constraint Programming (CP-98)*, LNCS 1520, 417–431. Springer.
 7. Ropke, S. y Pisinger, D. (2006). An adaptive large neighborhood search heuristic for the pickup and delivery problem with time windows. *Transportation Science*, 40(4), 455–472.
-8. Yin, Y. Q. y Hu, Z. H. (2026). Integrated scheduling of multiple handling equipment at an automated container terminal with apron and block buffer zones. *Flexible Services and Manufacturing Journal*. https://doi.org/10.1007/s10696-026-09680-7 (solo se revisó el resumen)
+8. Yin, Y. Q. y Hu, Z. H. (2026). Integrated scheduling of multiple handling equipment at an automated container terminal with apron and block buffer zones. *Flexible Services and Manufacturing Journal*. https://doi.org/10.1007/s10696-026-09680-7
 9. Glover, F. (1986). Future paths for integer programming and links to artificial intelligence. *Computers & Operations Research*, 13(5), 533–549.
 10. Glover, F. y Laguna, M. (1997). *Tabu Search*. Kluwer Academic Publishers.
 11. Taillard, É. D. y Voss, S. (2002). POPMUSIC — Partial optimization metaheuristic under special intensification conditions. En *Essays and Surveys in Metaheuristics*, 613–629. Springer.

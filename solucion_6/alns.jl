@@ -1,8 +1,9 @@
 # ============================================================
 # alns.jl — Búsqueda de vecindario grande adaptativa (ALNS) + pulido local
 # ============================================================
-# Esquema de Ropke y Pisinger (2006), con la reparación por inserción
-# secuencial de Yin y Hu (2026). En cada iteración:
+# Esquema de Ropke y Pisinger (2006), aplicado como en Yin y Hu (2026)
+# (ALNS con aceptación de recocido sobre un problema integrado de
+# máquinas, vehículos y buffers limitados). En cada iteración:
 #   1. Se elige un operador de destrucción y uno de reparación por ruleta
 #      (pesos adaptativos, uno para cada familia).
 #   2. Se sacan q lotes y se reinsertan (vecindad GRANDE: cambia a la vez
