@@ -5,6 +5,7 @@ datos/        Instancias originales (.xlsx)
 solucion_1/   Solución 1: lectura directa del Excel (main.jl)
 solucion_2/   Solución 2: metaheurística con reglas de despacho para los AGVs
 solucion_3/   Solución 3: plan explícito de viajes de AGVs + recocido con vecindades adaptativas
+solucion_4/   Solución 4: ALNS (destrucción y reparación) + pulido local sobre el plan de la solución 3
   instancias/   Instancias convertidas a .txt
   resultados/   Soluciones generadas y archivos para IO1Lab
 ```
@@ -27,6 +28,14 @@ julia main.jl instancias/instancia_01.txt [segundos] [semilla]
 cd solucion_3
 julia main.jl instancias/instancia_01.txt [segundos] [semilla]
 caffeinate -i bash correr_noche.sh 2400 4   # todas las instancias
+```
+
+**Solución 4** (desde la app Terminal de macOS, con `nohup` para que no se corte)
+```bash
+cd solucion_4
+nohup caffeinate -i bash correr.sh 3600 3 01 02 03 07 08 > corrida.log 2>&1 &   # instancias elegidas
+nohup caffeinate -i bash correr.sh 2400 3 > corrida.log 2>&1 &                  # las 10
+tail -f corrida.log            # ver avance
 ```
 
 ## Heurísticas de cada solución
@@ -60,6 +69,74 @@ caffeinate -i bash correr_noche.sh 2400 4   # todas las instancias
 - **Hallazgo:** las vecindades que más mejoran son *intercambiar lotes* y *dividir viaje*;
   *mover parada* y *mover viaje* casi nunca mejoran.
 
+### Solución 4 — ALNS + arranques húngaros sobre el plan explícito
+**Diagnóstico que la motiva.** Calculamos una cota inferior exacta: la asignación óptima de
+R||ΣC con el método húngaro, sumando a cada lote su viaje mínimo o→α_j y β_j→f. Con ella
+vemos dos tipos de instancias:
+- **01–05:** las máquinas casi nunca esperan ni se bloquean, así que manda la asignación
+  lote–máquina. Por ejemplo, en la 02 la cota es 392.6, el líder está en 404.0 y la v3 en 410.7.
+- **06–10:** el gap frente a la cota es de 16–42 %, así que manda el transporte.
+
+Los movimientos pequeños de la v3 no cambian de golpe la máquina, el orden y los viajes de
+varios lotes, por eso quedaban estancados.
+
+**Método.** ALNS (*Adaptive Large Neighborhood Search*, Ropke y Pisinger, 2006). En cada
+iteración se **destruye** parte de la solución (se sacan q lotes), se **repara** reinsertándolos y
+se **pule** con un descenso corto que usa las vecindades de la v3. q se sortea entre 2 y el 30 %
+de los lotes (tope 30), sesgado hacia valores chicos.
+
+- **Huecos.** Al sacar un lote, sus dos paradas quedan como *huecos* en sus viajes en vez de
+  borrarse. Así se conserva la estructura del transporte, y reinsertar un lote en su lugar
+  original recupera exactamente la solución.
+  - Sin huecos, la reparación empeoraba un 25 % en mediana.
+  - Con huecos, la mediana es 0 % y a veces mejora.
+- **5 operadores de destrucción:**
+  - *aleatorio*: q lotes al azar.
+  - *relacionados* (Shaw, 1998): lotes cercanos en el tiempo y del mismo tipo.
+  - *peores*: los lotes con más tiempo perdido, es decir máquina ociosa esperándolos más espera
+    hasta llegar a f.
+  - *viajes*: todos los lotes de varios viajes seguidos de un AGV.
+  - *segmento*: lotes consecutivos de una máquina.
+- **3 operadores de reparación** por **inserción secuencial** (como el SIA de Yin y Hu, 2026):
+  *voraz aleatorio*, *voraz SPT* y *arrepentimiento* (regret-2). Para cada lote:
+  1. Se prueban las posiciones cercanas a donde estaba (misma fracción de la secuencia ± 4), en
+     todas sus máquinas compatibles. Cada posición se evalúa con la mejor de dos colocaciones
+     baratas: sus huecos propios, o viajes propios junto al lote anterior.
+  2. En las mejores posiciones (hasta tener 3 factibles) se elige la mejor ubicación de cada
+     parada: cualquier hueco, el mismo viaje que el lote vecino, o un viaje propio al lado del suyo.
+  3. Si ninguna posición es factible, el lote va al final de una máquina y de un AGV. Como nadie
+     depende de él, esa inserción siempre es factible.
+- **Selección adaptativa:** una ruleta para cada familia de operadores, con premios 33 / 9 / 13
+  (nueva mejor / mejora la actual / aceptada) actualizados cada 25 iteraciones.
+- **Aceptación:** criterio de Metropolis. La temperatura inicial hace que una solución 0.5 % peor
+  se acepte con probabilidad 0.5, y luego baja de forma geométrica.
+- **Pulido:** 300 movimientos pequeños que solo se aceptan si mejoran. Las vecindades se
+  sortean con las probabilidades que aprendió la v3.
+- **Diversificación:**
+  - Conjunto **élite** con las 6 mejores soluciones distintas.
+  - Si no hay mejora en el 8 % del tiempo, se **reinicia**:
+    - La mitad de las veces desde un **arranque húngaro perturbado** (`arranques.jl`): la
+      asignación óptima de R||ΣC con tiempos de proceso con ruido de ±15 % (asignaciones
+      distintas pero buenas), viajes con las reglas de la v2, y luego el 2 % del tiempo de
+      recocido de la v3.
+    - La otra mitad desde una solución élite con una destrucción del doble de tamaño.
+  - Cada ronda de `correr.sh` usa otra semilla.
+- **Intensificación final:** el último 15 % del tiempo corre el recocido de la v3 desde la mejor
+  solución.
+- **Pruebas cortas:**
+  - Instancia 08: de 1092.96 a 1092.26 en 3 minutos.
+  - Instancia 02: de 410.68 a 409.65 en 5 minutos. Partir solo del húngaro llegó a 408.13 en
+    90 s.
+  - Instancia 03: sin cambios en 5 minutos.
+- **Limitaciones:**
+  - Cada iteración cuesta cientos de decodificaciones.
+  - Los parámetros (q, premios, ruido, tiempos) salen de la literatura y de pruebas cortas, sin
+    calibración sistemática.
+  - Muchas reparaciones devuelven exactamente la misma solución, que no recibe premio. Por eso
+    los pesos tienden al mínimo y la selección se vuelve casi uniforme.
+  - Los viajes solo pasan por o al inicio y por f al final. Rutas como o→α→β→o→…→f no se pueden
+    representar.
+
 ## Resultados (promedio de finalización, s)
 
 | Instancia | Solución 2 | Solución 3 | Mejora |
@@ -84,6 +161,7 @@ La solución de ejemplo del enunciado da 1062 s.
 - Bilge, Ü. y Ulusoy, G. (1995). A time window approach to simultaneous scheduling of machines and material handling system in an FMS. *Operations Research*, 43(6), 1058–1070.
 - Bruno, J., Coffman, E. G. y Sethi, R. (1974). Scheduling independent tasks to reduce mean finishing time. *Communications of the ACM*, 17(7), 382–387.
 - Horn, W. A. (1973). Minimizing average flow time with parallel machines. *Operations Research*, 21(3), 846–847.
+- Shaw, P. (1998). Using constraint programming and local search methods to solve vehicle routing problems. En *Principles and Practice of Constraint Programming (CP-98)*, LNCS 1520, 417–431. Springer.
 - Ropke, S. y Pisinger, D. (2006). An adaptive large neighborhood search heuristic for the pickup and delivery problem with time windows. *Transportation Science*, 40(4), 455–472.
 
 **Revisadas (problemas relacionados)**
@@ -92,4 +170,4 @@ La solución de ejemplo del enunciado da 1062 s.
 - Scheduling of no buffer job shop cells with blocking constraints and AGVs. *Applied Soft Computing*. https://www.sciencedirect.com/science/article/abs/pii/S1568494614003937
 - An ACO–SA algorithm for a multiload AGVs workshop scheduling problem with limited buffer capacity (2023). *Processes*, 11(3), 861. https://doi.org/10.3390/pr11030861
 - Critical-path-based VND for the joint scheduling of FJSP and AGVs (2025). *Mathematics*, 13(23), 3883. https://doi.org/10.3390/math13233883
-- Yin, Y. Q. y Hu, Z. H. (2026). Integrated scheduling of multiple handling equipment at an automated container terminal with apron and block buffer zones. *Flexible Services and Manufacturing Journal*. https://doi.org/10.1007/s10696-026-09680-7 (solo se revisó el resumen)
+- Yin, Y. Q. y Hu, Z. H. (2026). Integrated scheduling of multiple handling equipment at an automated container terminal with apron and block buffer zones. *Flexible Services and Manufacturing Journal*. https://doi.org/10.1007/s10696-026-09680-7 (solo se revisó el resumen; inspira la reparación por inserción secuencial de la solución 4)

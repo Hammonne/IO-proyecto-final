@@ -3,5 +3,5 @@
 cd "$(dirname "$0")"
 git add .
 git status --short
-git commit -m "Solución 3: diversificación, resultados de 4 rondas y documentación en README"
+git commit -m "Solución 4: ALNS con huecos, arranques húngaros y documentación"
 git push
