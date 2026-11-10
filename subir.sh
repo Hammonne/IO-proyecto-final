@@ -1,4 +1,4 @@
 git add .
 git status --short
-git commit -m "Soluciones 5 y 6: búsqueda tabú e híbrido tabú + LNS"
+git commit -m "Solución 7: tabú + ventanas exactas; hallazgo de visitas en la 01"
 git push

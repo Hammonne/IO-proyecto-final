@@ -8,6 +8,7 @@ solucion_3/   Solución 3: plan explícito de viajes de AGVs + recocido con veci
 solucion_4/   Solución 4: ALNS (destrucción y reparación) + pulido local sobre el plan de la solución 3
 solucion_5/   Solución 5: búsqueda tabú con lista de candidatos sobre el plan de la solución 3
 solucion_6/   Solución 6: híbrido tabú (v5) + patadas de destrucción/reparación (ALNS de la v4)
+solucion_7/   Solución 7: tabú con visitas + reoptimización exacta por ventanas (movimientos compuestos)
   instancias/   Instancias convertidas a .txt
   resultados/   Soluciones generadas y archivos para IO1Lab
 ```
@@ -165,6 +166,11 @@ cualquier punto:
   soluciones usó visitas intermedias. En estas instancias esas rutas no parecen convenir, o
   hacen falta corridas más largas para encontrarlas. La 02 bajó de 409.65 a 409.56 por otros
   movimientos.
+- **En la corrida de 1 hora sí aparecieron:** la mejor solución de la **01 (326.66)** tiene 3
+  viajes que pasan por f a mitad de camino, por ejemplo α10 → β9 → **f** → β12 → α7 → β10. El
+  AGV deja un lote terminado en f sin descargar el lote que va a α7, que sigue a bordo. Leída
+  con el decodificador de la v3 (sin visitas), esa misma solución vale 326.77, que es justo el
+  valor al que llegó la v4 sin visitas en 10 rondas. Las demás instancias no usan visitas.
 
 ### Solución 5 — búsqueda tabú con lista de candidatos
 Búsqueda local "de manual" sobre la misma representación, decodificador y 7 vecindades de la
@@ -223,6 +229,65 @@ Pruebas cortas (sin conclusión todavía):
 En corridas cortas las patadas interrumpen a la tabú antes de que converja; el híbrido está
 pensado para corridas largas que parten de una solución ya buena.
 
+### Solución 7 — tabú + reoptimización exacta por ventanas
+**Motivación.** Se revisaron **todos** los vecinos de las mejores soluciones de la 01 y la 03 con
+6 tipos de movimiento: mover 1 parada, mover segmentos de 2–3 paradas seguidas (*Or-opt*, Or 1976),
+mover las 2 paradas de un lote juntas (*pair relocation*, Nanry y Barnes 2000), intercambiar dos
+lotes, y reubicar un lote en cualquier máquina y posición. Ninguno mejora: son **óptimos locales
+estrictos**. Para salir de ahí hacen falta movimientos que cambien varias cosas a la vez.
+
+**Ventanas exactas** (idea de POPMUSIC, Taillard y Voss 2002, y de *dynasearch*, Congram et al.
+2002): se fija toda la solución menos una ventana pequeña, y dentro de ella se prueban **todas**
+las combinaciones.
+- **Ventana de lotes:** 5 lotes que empiezan seguidos en el tiempo. Se prueban las 5! formas de
+  repartirlos en sus lugares de máquina, con las paradas siguiendo al lote o quedándose en su
+  lugar. Generaliza el intercambio de 2 lotes a ciclos de k lotes (intercambio cíclico, Ahuja
+  et al. 2002).
+- **Ventana de paradas:** 6 paradas seguidas en el tiempo, de cualquier AGV. Se prueban las 6!
+  formas de repartirlas en sus lugares del plan; esto reordena viajes y pasa paradas entre AGVs
+  a la vez.
+- **Ventana conjunta:** cada reparto de 3 lotes combinado con cada reparto de 5 de sus paradas.
+
+**Búsqueda.** Es la tabú de la v5 con las 10 vecindades de la v4 (incluye visitas, porque la
+mejor solución de la 01 las usa). Cuando se estanca, primero hace un descenso por ventanas
+sobre la mejor solución y, si no mejora, la perturba. Si la actual se aleja más de un 2 % de la
+mejor, vuelve a la mejor: sin esa regla, la tabú acumulaba visitas cuyo retiro quedaba tabú, y
+llegó a alejarse un 20 %.
+
+**Resultados (honestos).**
+- Las ventanas, aplicadas a las mejores soluciones de la 01 y la 03, no mejoran: también son
+  óptimos locales para estos movimientos compuestos.
+- La v7, corriendo 10 minutos en la 01 y 4 minutos en la 01 y la 03 desde la mejor solución, no
+  mejora.
+- Desde la solución constructiva (40 s) rinde parecido a la v5: 507.79 en la 03 y 933.09 en la
+  07.
+- **Conclusión:** en la 01 y la 03 la diferencia con el líder (0.06 y 0.52) parece venir de
+  soluciones con una estructura distinta, no de un vecino cercano de las nuestras. Salir de ahí
+  probablemente requiere partir de otras soluciones iniciales, por ejemplo con más rondas y
+  semillas, que fue lo que funcionó en la 02.
+
+## Mejores valores (10/11/2026)
+
+Mejor solución factible de cada instancia y dónde está. "Líder" es el mejor valor del ranking de
+IO1Lab a las 09:40 del 10/11.
+
+| Inst | Mejor valor | Método | Archivo | Líder IO1Lab | Estado |
+|---|---|---|---|---|---|
+| 01 | 326.66 | v4 (ALNS) | `solucion_4/resultados/instancia_01_io1lab.txt` | 326.60 | falta 0.06 |
+| 02 | 405.59 | v4 (ALNS, 10 rondas, corrida de la compañera) | en su carpeta `solucion_4/resultados/` (falta agregarlo al repo) | 404.00 | falta 1.59 |
+| 03 | 476.44 | v3/v4 | `solucion_4/resultados/instancia_03_io1lab.txt` | 475.92 | falta 0.52 |
+| 04 | 525.92 | v4 (corrida de la compañera) | en su carpeta (falta agregarlo al repo) | 526.40 (nuestro) | primeros |
+| 05 | 591.34 | v4 (corrida de la compañera) | en su carpeta (falta agregarlo al repo) | 591.40 (nuestro) | primeros |
+| 06 | 754.24 | v4 (corrida de la compañera) | en su carpeta (falta agregarlo al repo) | 754.42 (nuestro) | primeros |
+| 07 | 906.69 | v4 (ALNS) | `solucion_4/resultados/instancia_07_io1lab.txt` | 905.69 | falta 1.00 |
+| 08 | 1090.72 | v5 (tabú) | `solucion_5/resultados/instancia_08_io1lab.txt` (copiado también a `solucion_4/resultados/`) | 1077.98 | falta 12.74 |
+| 09 | 964.21 | v4 (corrida de la compañera) | en su carpeta (falta agregarlo al repo) | 964.36 (nuestro) | primeros |
+| 10 | 997.84 | v4 (corrida de la compañera) | en su carpeta (falta agregarlo al repo) | 998.97 (nuestro) | primeros |
+
+En el repo, `solucion_4/resultados/` tiene la mejor versión guardada de cada instancia
+(02: 409.44, 04: 526.40, 05: 591.40, 06: 754.42, 09: 964.36 y 10: 998.97 mientras no se agreguen
+los archivos de la compañera).
+
 ## Resultados (promedio de finalización, s)
 
 | Instancia | Solución 2 | Solución 3 | Solución 4 (mejor actual) |
@@ -254,6 +319,7 @@ Los números corresponden a la lista de referencias de abajo.
 | 4 | [1], [2], [3], [5], [6], [7], [8] | [7]: esquema ALNS (destrucción/reparación, premios 33/9/13, eliminación de los peores) · [6]: eliminación de lotes relacionados (Shaw) · [8]: reparación por inserción secuencial · [1]–[2]: reinicios desde asignaciones húngaras perturbadas · [3]: aceptación de Metropolis · [5]: misma representación de la v3 |
 | 5 | [5], [9], [10] | [9]–[10]: búsqueda tabú (lista tabú por atributos, aspiración, lista de candidatos) · [5]: misma representación de la v3 |
 | 6 | [5], [6], [7], [8], [9], [10] | [9]–[10]: búsqueda tabú como búsqueda local · [7]: destrucción/reparación y ruleta adaptativa como perturbación · [6], [8]: operadores de la v4 · [5]: misma representación |
+| 7 | [5], [9], [10], [11], [12], [13], [14], [15] | [9]–[10]: búsqueda tabú · [11]: ventanas exactas (POPMUSIC) · [12]: *dynasearch* · [13]: intercambio cíclico (VLSN) · [14]–[15]: Or-opt y movimiento de pares, usados en la revisión exhaustiva |
 
 ## Referencias
 
@@ -268,6 +334,11 @@ Los números corresponden a la lista de referencias de abajo.
 8. Yin, Y. Q. y Hu, Z. H. (2026). Integrated scheduling of multiple handling equipment at an automated container terminal with apron and block buffer zones. *Flexible Services and Manufacturing Journal*. https://doi.org/10.1007/s10696-026-09680-7 (solo se revisó el resumen)
 9. Glover, F. (1986). Future paths for integer programming and links to artificial intelligence. *Computers & Operations Research*, 13(5), 533–549.
 10. Glover, F. y Laguna, M. (1997). *Tabu Search*. Kluwer Academic Publishers.
+11. Taillard, É. D. y Voss, S. (2002). POPMUSIC — Partial optimization metaheuristic under special intensification conditions. En *Essays and Surveys in Metaheuristics*, 613–629. Springer.
+12. Congram, R. K., Potts, C. N. y van de Velde, S. L. (2002). An iterated dynasearch algorithm for the single-machine total weighted tardiness scheduling problem. *INFORMS Journal on Computing*, 14(1), 52–67.
+13. Ahuja, R. K., Ergun, Ö., Orlin, J. B. y Punnen, A. P. (2002). A survey of very large-scale neighborhood search techniques. *Discrete Applied Mathematics*, 123, 75–102.
+14. Or, I. (1976). *Traveling salesman-type combinatorial problems and their relation to the logistics of regional blood banking*. Tesis doctoral, Northwestern University.
+15. Nanry, W. P. y Barnes, J. W. (2000). Solving the pickup and delivery problem with time windows using reactive tabu search. *Transportation Research Part B*, 34(2), 107–121.
 
 **Revisadas (problemas relacionados, no usadas directamente)**
 - Integrated scheduling problem of multi-load AGVs and parallel machines considering the recovery process (2025). *Swarm and Evolutionary Computation*. https://www.sciencedirect.com/science/article/abs/pii/S2210650225000197
