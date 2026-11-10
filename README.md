@@ -6,6 +6,8 @@ solucion_1/   Solución 1: lectura directa del Excel (main.jl)
 solucion_2/   Solución 2: metaheurística con reglas de despacho para los AGVs
 solucion_3/   Solución 3: plan explícito de viajes de AGVs + recocido con vecindades adaptativas
 solucion_4/   Solución 4: ALNS (destrucción y reparación) + pulido local sobre el plan de la solución 3
+solucion_5/   Solución 5: búsqueda tabú con lista de candidatos sobre el plan de la solución 3
+solucion_6/   Solución 6: híbrido tabú (v5) + patadas de destrucción/reparación (ALNS de la v4)
   instancias/   Instancias convertidas a .txt
   resultados/   Soluciones generadas y archivos para IO1Lab
 ```
@@ -36,6 +38,14 @@ cd solucion_4
 nohup caffeinate -i bash correr.sh 3600 3 01 02 03 07 08 > corrida.log 2>&1 &   # instancias elegidas
 nohup caffeinate -i bash correr.sh 2400 3 > corrida.log 2>&1 &                  # las 10
 tail -f corrida.log            # ver avance
+```
+
+**Solución 5** (búsqueda tabú; `cero` = parte de la solución constructiva, sin búsqueda previa)
+```bash
+cd solucion_5
+julia main.jl instancias/instancia_03.txt 600 1 cero   # desde cero (para comparar métodos)
+julia main.jl instancias/instancia_03.txt 600 1        # desde resultados/ si hay solución guardada
+UN_NUCLEO=1 nohup caffeinate -i bash correr.sh 3600 1 > corrida.log 2>&1 &
 ```
 
 ## Heurísticas de cada solución
@@ -156,22 +166,80 @@ cualquier punto:
   hacen falta corridas más largas para encontrarlas. La 02 bajó de 409.65 a 409.56 por otros
   movimientos.
 
+### Solución 5 — búsqueda tabú con lista de candidatos
+Búsqueda local "de manual" sobre la misma representación, decodificador y 7 vecindades de la
+solución 3 (Glover, 1986; Glover y Laguna, 1997).
+- **Lista de candidatos:** revisar la vecindad completa no es viable (solo *intercambiar lotes*
+  tiene ≈ 24 000 vecinos en la instancia 10, unos 2 s por iteración). En cada iteración se generan
+  tantos vecinos al azar como lotes tiene la instancia (entre 30 y 200), con las vecindades
+  ponderadas según lo que aprendió el recocido de la v3.
+- **Movimiento:** se pasa al **mejor** candidato admisible aunque empeore la solución actual.
+- **Memoria de corto plazo:** cada lote tiene una *huella*: máquina, lote anterior en la máquina y,
+  para sus dos paradas, AGV y parada anterior en el viaje. Si un movimiento cambia la huella de un
+  lote, la pareja (lote, huella vieja) queda tabú durante 2√n a 4√n iteraciones (tenencia
+  aleatoria). Así se prohíbe deshacer el movimiento sin tener que guardar soluciones completas.
+- **Aspiración:** un movimiento tabú se acepta si da una nueva mejor solución.
+- **Diversificación:** si la mejor no mejora en el 10 % del tiempo, se parte de la mejor con
+  3–8 movimientos aleatorios y se vacía la lista tabú.
+- **Prueba corta** (40 s, misma solución constructiva de partida):
+
+  | Instancia | Inicial | Recocido (v3) | Tabú (v5) |
+  |---|---|---|---|
+  | 01 | 331.75 | **326.85** | 328.46 |
+  | 03 | 535.46 | 505.43 | **498.12** |
+  | 07 | 995.54 | 946.48 | **932.10** |
+
+  La tabú hace entre 20 y 100 veces menos iteraciones que el recocido, pero cada una es un
+  mejor movimiento, por eso rinde mejor en las instancias medianas y grandes.
+- **Prueba de 1 hora** partiendo de la mejor solución de la v4 (donde el ALNS ya no mejoraba):
+  la 08 bajó de 1092.24 a **1090.72**; la 02 (409.44) y la 07 (906.69) no mejoraron.
+- **Limitaciones:** las huellas solo miran al vecino anterior, así que algunos movimientos
+  distintos comparten huella; la tenencia y el tamaño de la lista se fijaron con pocas pruebas.
+
+### Solución 6 — híbrido: búsqueda tabú + patadas de destrucción/reparación
+Combina lo que mejor hace cada método:
+- **v5 (tabú):** intensifica bien, porque toma el mejor movimiento, pero su diversificación (3–8
+  movimientos al azar) es débil.
+- **v4 (ALNS):** diversifica bien, porque cambia muchos lotes a la vez, pero su pulido es un
+  descenso corto y al final de las corridas largas todos sus operadores quedan con peso mínimo.
+
+Esquema (tipo ILS, con la tabú como búsqueda local y el LNS como perturbación):
+1. **Fase tabú:** la búsqueda de la v5 hasta que la mejor solución de la fase no mejora en el 3 %
+   del tiempo total.
+2. **Patada LNS:** se sacan q lotes y se reinsertan con los operadores de la v4, partiendo de la
+   mejor global o de la mejor de la fase (50 % cada una). Se vacía la lista tabú.
+3. **Aprendizaje:** la pareja (destrucción, reparación) usada recibe 33 puntos si la fase que abrió
+   encontró una nueva mejor global y 9 si terminó mejor que la solución destruida (Ropke y
+   Pisinger, 2006). Los pesos de la ruleta se actualizan cada 5 patadas.
+
+Pruebas cortas (sin conclusión todavía):
+
+| Prueba | Tabú (v5) | Híbrido (v6) |
+|---|---|---|
+| 03, 60 s desde la constructiva | 499.20 | **495.77** |
+| 07, 60 s desde la constructiva | **930.48** | 936.52 |
+| 08, 5 min desde la mejor (1090.72) | 1090.72 | 1090.72 |
+
+En corridas cortas las patadas interrumpen a la tabú antes de que converja; el híbrido está
+pensado para corridas largas que parten de una solución ya buena.
+
 ## Resultados (promedio de finalización, s)
 
-| Instancia | Solución 2 | Solución 3 | Mejora |
+| Instancia | Solución 2 | Solución 3 | Solución 4 (mejor actual) |
 |---|---|---|---|
-| ejemplo | 1102.50 | 1044.00 | −5.3 % |
-| 01 | 330.10 | 326.77 | −1.0 % |
-| 02 | 416.45 | 410.68 | −1.4 % |
-| 03 | 478.07 | 476.44 | −0.3 % |
-| 04 | 531.00 | 526.40 | −0.9 % |
-| 05 | 601.34 | 591.40 | −1.7 % |
-| 06 | 759.10 | 754.42 | −0.6 % |
-| 07 | 910.12 | 906.70 | −0.4 % |
-| 08 | 1108.86 | 1092.96 | −1.4 % |
-| 09 | 1002.51 | 964.36 | −3.8 % |
-| 10 | 1091.61 | 998.97 | −8.5 % |
+| ejemplo | 1102.50 | 1044.00 | 1044.00 |
+| 01 | 330.10 | 326.77 | 326.66 |
+| 02 | 416.45 | 410.68 | 409.44 |
+| 03 | 478.07 | 476.44 | 476.44 |
+| 04 | 531.00 | 526.40 | 526.40 |
+| 05 | 601.34 | 591.40 | 591.40 |
+| 06 | 759.10 | 754.42 | 754.42 |
+| 07 | 910.12 | 906.70 | 906.69 |
+| 08 | 1108.86 | 1092.96 | 1090.72 (con la tabú de la v5) |
+| 09 | 1002.51 | 964.36 | 964.36 |
+| 10 | 1091.61 | 998.97 | 998.97 |
 
+La columna de la solución 4 es la mejor solución guardada en `solucion_4/resultados/` (cada corrida parte de la anterior).
 La solución de ejemplo del enunciado da 1062 s.
 
 ## Papers usados en cada solución
@@ -184,6 +252,8 @@ Los números corresponden a la lista de referencias de abajo.
 | 2 | [1], [2], [3], [4] | [1]–[2]: asignación exacta R‖ΣC con el método húngaro (solución inicial) · [3]: recocido simulado · [4]: ILS |
 | 3 | [3], [4], [5], [7] | [5]: representación en dos capas máquinas + vehículos · [3]: recocido simulado · [7]: ruleta adaptativa de vecindades · [4]: perturbaciones tipo ILS |
 | 4 | [1], [2], [3], [5], [6], [7], [8] | [7]: esquema ALNS (destrucción/reparación, premios 33/9/13, eliminación de los peores) · [6]: eliminación de lotes relacionados (Shaw) · [8]: reparación por inserción secuencial · [1]–[2]: reinicios desde asignaciones húngaras perturbadas · [3]: aceptación de Metropolis · [5]: misma representación de la v3 |
+| 5 | [5], [9], [10] | [9]–[10]: búsqueda tabú (lista tabú por atributos, aspiración, lista de candidatos) · [5]: misma representación de la v3 |
+| 6 | [5], [6], [7], [8], [9], [10] | [9]–[10]: búsqueda tabú como búsqueda local · [7]: destrucción/reparación y ruleta adaptativa como perturbación · [6], [8]: operadores de la v4 · [5]: misma representación |
 
 ## Referencias
 
@@ -196,6 +266,8 @@ Los números corresponden a la lista de referencias de abajo.
 6. Shaw, P. (1998). Using constraint programming and local search methods to solve vehicle routing problems. En *Principles and Practice of Constraint Programming (CP-98)*, LNCS 1520, 417–431. Springer.
 7. Ropke, S. y Pisinger, D. (2006). An adaptive large neighborhood search heuristic for the pickup and delivery problem with time windows. *Transportation Science*, 40(4), 455–472.
 8. Yin, Y. Q. y Hu, Z. H. (2026). Integrated scheduling of multiple handling equipment at an automated container terminal with apron and block buffer zones. *Flexible Services and Manufacturing Journal*. https://doi.org/10.1007/s10696-026-09680-7 (solo se revisó el resumen)
+9. Glover, F. (1986). Future paths for integer programming and links to artificial intelligence. *Computers & Operations Research*, 13(5), 533–549.
+10. Glover, F. y Laguna, M. (1997). *Tabu Search*. Kluwer Academic Publishers.
 
 **Revisadas (problemas relacionados, no usadas directamente)**
 - Integrated scheduling problem of multi-load AGVs and parallel machines considering the recovery process (2025). *Swarm and Evolutionary Computation*. https://www.sciencedirect.com/science/article/abs/pii/S2210650225000197
