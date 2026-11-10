@@ -6,8 +6,14 @@
 #   plan[a] = [viaje_1, viaje_2, ...]
 #   viaje   = paradas en orden; cada parada abastece un lote en su alfa_j
 #             o retira un lote de su beta_j
-# Ruta de un viaje: si abastece algo, va a o y carga esos lotes; recorre
-# sus paradas en orden; si retiró algo, termina en f y lo descarga.
+# Ruta de un viaje: recorre sus paradas en orden. Además de las paradas
+# en máquinas puede tener VISITAS explícitas a o y a f en cualquier punto:
+#   - cada lote se carga en la última visita a o antes de su entrega
+#     (al inicio del viaje hay una visita a o implícita si hace falta)
+#   - cada lote retirado se descarga en la primera visita a f después de
+#     recogerlo (al final del viaje hay una visita a f implícita si hace falta)
+# Así se permiten rutas como o→α→β→o→α→β→f (volver a o con lotes
+# terminados a bordo) u o→α→β→f→α (pasar por f a mitad de viaje).
 # El decodificador calcula los tiempos de todo el sistema (camino más
 # largo en el grafo de precedencias). Si hay un ciclo de esperas
 # (bloqueo mutuo) o se supera la capacidad, el plan es infactible.
@@ -15,11 +21,16 @@
 struct Parada
     abastece::Bool   # true: deja el lote en alfa_j; false: lo retira de beta_j
     lote::Int        # lote < 0: HUECO dejado por el lote -lote al destruir (ALNS)
+                     # lote = 0: VISITA a o (abastece = true) o a f (false)
 end
 
 # Los huecos guardan el lugar de una parada en su viaje mientras el lote
 # está fuera de la solución; el decodificador los salta.
 es_real(p) = p.lote > 0
+es_visita(p) = p.lote == 0
+visita_o(p) = es_visita(p) && p.abastece
+visita_f(p) = es_visita(p) && !p.abastece
+const VISITA_O, VISITA_F = Parada(true, 0), Parada(false, 0)
 
 const Viaje = Vector{Parada}
 const Plan = Vector{Vector{Viaje}}
@@ -41,12 +52,26 @@ function ubicar_lotes(seq)
     return ubic
 end
 
-# Carga máxima a bordo durante el viaje (se carga todo lo que abastece en o)
+# Lotes que se cargan en la visita a o ubicada en la posición k del viaje
+# (k = 0: visita implícita al inicio): los que se entregan antes de la
+# siguiente visita a o
+function cargas_desde(viaje, k)
+    lotes = Int[]
+    for p in @view viaje[k+1:end]
+        visita_o(p) && break
+        p.abastece && es_real(p) && push!(lotes, p.lote)
+    end
+    return lotes
+end
+
+# Carga máxima a bordo a lo largo de la ruta del viaje
 function carga_maxima(viaje)
-    carga = count(p -> p.abastece && es_real(p), viaje)
+    carga, terminados = length(cargas_desde(viaje, 0)), 0
     maxima = carga
-    for p in Iterators.filter(es_real, viaje)
-        carga += p.abastece ? -1 : 1
+    for (k, p) in enumerate(viaje)
+        visita_o(p) && (carga += length(cargas_desde(viaje, k)))
+        visita_f(p) && (carga -= terminados; terminados = 0)
+        es_real(p) && (carga += p.abastece ? -1 : 1; terminados += p.abastece ? 0 : 1)
         maxima = max(maxima, carga)
     end
     return maxima
@@ -61,15 +86,18 @@ function mover_a!(cur, ins, destino)
     cur.pos = destino
 end
 
-function iniciar_viaje!(e, ins, a, cur, viaje)
-    any(p -> p.abastece && es_real(p), viaje) || return
+# Va a o y carga los lotes del tramo que empieza en la posición k
+function visitar_o!(e, ins, a, cur, viaje, k)
+    lotes = cargas_desde(viaje, k)
+    isempty(lotes) && return
     mover_a!(cur, ins, pos_o(ins))
-    for p in Iterators.filter(es_real, viaje)
-        p.abastece && push!(e.ops, Operacion(a, :carga, p.lote, pos_o(ins), cur.t))
+    for i in lotes
+        push!(e.ops, Operacion(a, :carga, i, pos_o(ins), cur.t))
     end
 end
 
-function cerrar_viaje!(e, ins, a, cur)
+# Va a f y descarga los lotes terminados a bordo (si los hay)
+function visitar_f!(e, ins, a, cur)
     isempty(cur.retirados) && return
     mover_a!(cur, ins, pos_f(ins))
     for i in cur.retirados
@@ -94,20 +122,28 @@ function atender!(e, ins, a, cur, p, j, k)
     propagar!(e, ins, j)
 end
 
+# Atiende la parada actual del viaje: visita, hueco (se salta) o máquina
+function atender_parada!(e, ins, ubic, a, cur, viaje)
+    p = viaje[cur.parada]
+    visita_o(p) && return visitar_o!(e, ins, a, cur, viaje, cur.parada)
+    visita_f(p) && return visitar_f!(e, ins, a, cur)
+    es_real(p) || return
+    j, k = ubic[p.lote]
+    desconocido(listo_parada(e, p, j, k)) && return :bloqueado
+    atender!(e, ins, a, cur, p, j, k)
+end
+
 # Un paso del AGV a: devuelve :fin, :bloqueado o :avanzo
 function paso!(e, ins, plan, ubic, a, cur)
     cur.viaje > length(plan[a]) && return :fin
     viaje = plan[a][cur.viaje]
     if cur.parada == 0
-        iniciar_viaje!(e, ins, a, cur, viaje)
+        visitar_o!(e, ins, a, cur, viaje, 0)
     elseif cur.parada > length(viaje)
-        cerrar_viaje!(e, ins, a, cur)
+        visitar_f!(e, ins, a, cur)
         cur.viaje, cur.parada = cur.viaje + 1, -1
-    elseif es_real(viaje[cur.parada])
-        p = viaje[cur.parada]
-        j, k = ubic[p.lote]
-        desconocido(listo_parada(e, p, j, k)) && return :bloqueado
-        atender!(e, ins, a, cur, p, j, k)
+    elseif atender_parada!(e, ins, ubic, a, cur, viaje) == :bloqueado
+        return :bloqueado
     end
     cur.parada += 1
     return :avanzo
@@ -139,26 +175,53 @@ function evaluar_plan(ins, seq, plan)
     return ok ? sum(e.c) / num_lotes(ins) : Inf
 end
 
-# --- Conversión desde la solución 2 ----------------------------
-# Reconstruye los viajes a partir de las operaciones simuladas por las
-# reglas de despacho: un viaje se cierra al descargar en f o al volver a o.
+# --- Reconstrucción del plan desde operaciones ---------------------
+# A partir de las operaciones de un AGV (simuladas por la solución 2 o
+# leídas de un TXT de IO1Lab) se rearma su plan. Un viaje se cierra
+# cuando el AGV queda vacío (al pasar por o o al descargar en f); si pasa
+# por o o por f llevando lotes, se agrega una VISITA explícita.
 
-function parada_de_op(ins, op)
-    op.tipo == :descarga && op.lugar != pos_f(ins) && return Parada(true, op.lote)
-    op.tipo == :carga && op.lugar != pos_o(ins) && return Parada(false, op.lote)
-    return nothing
+mutable struct Reconstruccion
+    viajes::Vector{Viaje}
+    actual::Viaje
+    cargados::Int      # lotes a bordo que van a una máquina
+    terminados::Int    # lotes a bordo que van a f
+    ultimo::Symbol     # :o, :f o :maquina (para agrupar operaciones de una misma visita)
+end
+
+function cerrar_viaje!(r)
+    isempty(r.actual) || push!(r.viajes, r.actual)
+    r.actual = Parada[]
+end
+
+function llegar_a_o!(r)
+    r.ultimo == :o && return
+    r.cargados == 0 && r.terminados == 0 ? cerrar_viaje!(r) : push!(r.actual, VISITA_O)
+end
+
+function llegar_a_f!(r)
+    r.ultimo == :f && return
+    r.cargados == 0 ? cerrar_viaje!(r) : push!(r.actual, VISITA_F)
+end
+
+function procesar_op!(r, ins, op)
+    if op.lugar == pos_o(ins)
+        llegar_a_o!(r); r.cargados += 1; r.ultimo = :o
+    elseif op.lugar == pos_f(ins)
+        llegar_a_f!(r); r.terminados -= 1; r.ultimo = :f
+    else
+        abastece = op.tipo == :descarga
+        push!(r.actual, Parada(abastece, op.lote))
+        abastece ? (r.cargados -= 1) : (r.terminados += 1)
+        r.ultimo = :maquina
+    end
 end
 
 function viajes_de_agv(ins, ops, a)
-    viajes, actual = Viaje[], Parada[]
-    for op in filter(op -> op.agv == a, ops)
-        cierra = op.lugar == pos_f(ins) || (op.lugar == pos_o(ins) && op.tipo == :carga)
-        cierra && !isempty(actual) && (push!(viajes, actual); actual = Parada[])
-        p = parada_de_op(ins, op)
-        p === nothing || push!(actual, p)
-    end
-    isempty(actual) || push!(viajes, actual)
-    return viajes
+    r = Reconstruccion(Viaje[], Parada[], 0, 0, :maquina)
+    foreach(op -> procesar_op!(r, ins, op), filter(op -> op.agv == a, ops))
+    cerrar_viaje!(r)
+    return r.viajes
 end
 
 plan_desde_estado(ins, e) = [viajes_de_agv(ins, e.ops, a) for a in 1:ins.K]

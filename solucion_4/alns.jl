@@ -24,8 +24,8 @@ const Q_MIN, FRACCION_Q, Q_TOPE = 2, 0.3, 30
 const ITER_PULIDO = 300
 # Probabilidad de cada vecindad pequeña en el pulido; se fijaron según
 # los pesos que aprendió la solución 3 (intercambiar lotes y dividir viaje
-# fueron las que más mejoraron)
-const PESOS_PULIDO = [0.05, 0.05, 0.10, 0.25, 0.05, 0.40, 0.10]
+# fueron las que más mejoraron) más un 15 % para las vecindades de visitas
+const PESOS_PULIDO = [0.05, 0.05, 0.10, 0.20, 0.05, 0.35, 0.05, 0.06, 0.04, 0.05]
 
 const Solucion = Tuple{Vector{Vector{Int}},Plan,Float64}
 

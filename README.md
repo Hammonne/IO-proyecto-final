@@ -134,8 +134,27 @@ de los lotes (tope 30), sesgado hacia valores chicos.
     calibración sistemática.
   - Muchas reparaciones devuelven exactamente la misma solución, que no recibe premio. Por eso
     los pesos tienden al mínimo y la selección se vuelve casi uniforme.
-  - Los viajes solo pasan por o al inicio y por f al final. Rutas como o→α→β→o→…→f no se pueden
-    representar.
+
+**Rutas generales con visitas intermedias a o y f.** Antes, cada viaje pasaba por o solo al
+inicio y por f solo al final. Ahora un viaje puede incluir *visitas* explícitas a o o a f en
+cualquier punto:
+- Cada lote se carga en la última visita a o antes de su entrega y se descarga en la primera
+  visita a f después de recogerlo. La capacidad se controla a lo largo de toda la ruta.
+- Esto permite, por ejemplo, **volver a o con lotes terminados a bordo**
+  (o→α₁→β₁→o→α₂→β₂→f), lo que ahorra el viaje f→o, o **pasar por f a mitad de viaje** cuando
+  queda de camino.
+- Tres vecindades nuevas: *insertar visita*, *quitar visita* y *unir dos viajes pasando por o*
+  (este último no va a f entre los dos viajes).
+- El lector de `.txt` reconstruye las visitas, así que estas soluciones también sirven como
+  punto de partida.
+- Las soluciones anteriores siguen siendo válidas sin cambios: el espacio de soluciones solo
+  se amplía.
+- Limitación: el decodificador es un poco más lento (≈ 90 µs por evaluación en la instancia 08,
+  frente a ≈ 60 µs).
+- Resultado en pruebas de 10 minutos (instancias 02, 03, 07 y 08): ninguna de las mejores
+  soluciones usó visitas intermedias. En estas instancias esas rutas no parecen convenir, o
+  hacen falta corridas más largas para encontrarlas. La 02 bajó de 409.65 a 409.56 por otros
+  movimientos.
 
 ## Resultados (promedio de finalización, s)
 

@@ -57,7 +57,7 @@ function quitar_viajes(ins, seq, plan, e, q, rng)
     a = rand(rng, [a for a in eachindex(plan) if !isempty(plan[a])])
     v, lotes = rand(rng, eachindex(plan[a])), Int[]
     while v <= length(plan[a]) && length(unique(lotes)) < q
-        append!(lotes, [p.lote for p in plan[a][v]])
+        append!(lotes, [p.lote for p in plan[a][v] if es_real(p)])
         v += 1
     end
     return unique(lotes)[1:min(q, end)]

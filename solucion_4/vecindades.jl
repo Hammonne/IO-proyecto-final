@@ -10,6 +10,11 @@
 #                        Y su lugar en el plan (los viajes no cambian de forma)
 # V7 reubicar_lote     : un lote cambia de máquina/posición y sus paradas se
 #                        reinsertan junto a las de sus nuevos vecinos
+# V8 insertar_visita   : agrega una visita a o o a f en medio de un viaje
+#                        (rutas o→α→β→o→… o pasar por f sin terminar el viaje)
+# V9 quitar_visita     : elimina una visita intermedia a o o a f
+# V10 unir_por_o       : une dos viajes seguidos de un AGV pasando por o, sin
+#                        ir a f entre medio (lleva lotes terminados "de paseo")
 # Los viajes candidatos se toman "cercanos en el tiempo": misma fracción
 # del plan ± 2 viajes, porque mover una parada muy lejos casi siempre
 # produce esperas largas o bloqueos mutuos.
@@ -17,11 +22,13 @@
 copiar_plan(plan) = [[copy(v) for v in viajes] for viajes in plan]
 copiar_seq(seq) = [copy(s) for s in seq]
 
-limpiar!(plan) = (foreach(viajes -> filter!(!isempty, viajes), plan); plan)
+# Quita los viajes que no tienen paradas en máquinas (vacíos o solo visitas)
+tiene_paradas(v) = any(p -> !es_visita(p), v)
+limpiar!(plan) = (foreach(viajes -> filter!(tiene_paradas, viajes), plan); plan)
 
 function parada_aleatoria(plan, rng)
-    a = rand(rng, [a for a in eachindex(plan) if !isempty(plan[a])])
-    v = rand(rng, eachindex(plan[a]))
+    a = rand(rng, [a for a in eachindex(plan) if any(!isempty, plan[a])])
+    v = rand(rng, [v for v in eachindex(plan[a]) if !isempty(plan[a][v])])
     return a, v, rand(rng, eachindex(plan[a][v]))
 end
 
@@ -60,7 +67,7 @@ function intercambiar_paradas(seq, plan, rng)
     v2 == 0 && return seq, plan
     k2 = rand(rng, eachindex(nuevo[a2][v2]))
     nuevo[a][v][k], nuevo[a2][v2][k2] = nuevo[a2][v2][k2], nuevo[a][v][k]
-    return seq, nuevo
+    return seq, limpiar!(nuevo)     # un viaje pudo quedar solo con una visita
 end
 
 # --- V3 y V4 ----------------------------------------------------
@@ -142,6 +149,36 @@ function reubicar_lote(ins, seq, plan, rng)
     return nueva, limpiar!(nuevo)
 end
 
+# --- V8, V9 y V10: visitas intermedias a o y f ----------------------
+function insertar_visita(seq, plan, rng)
+    nuevo = copiar_plan(plan)
+    a, v, k = parada_aleatoria(nuevo, rng)
+    insert!(nuevo[a][v], k + rand(rng, 0:1), rand(rng, (VISITA_O, VISITA_F)))
+    return seq, nuevo
+end
+
+function visitas(plan)
+    return [(a, v, k) for a in eachindex(plan) for v in eachindex(plan[a])
+            for k in eachindex(plan[a][v]) if es_visita(plan[a][v][k])]
+end
+
+function quitar_visita(seq, plan, rng)
+    lista = visitas(plan)
+    isempty(lista) && return seq, plan
+    nuevo, (a, v, k) = copiar_plan(plan), rand(rng, lista)
+    deleteat!(nuevo[a][v], k)
+    return seq, limpiar!(nuevo)
+end
+
+function unir_por_o(seq, plan, rng)
+    candidatos = [a for a in eachindex(plan) if length(plan[a]) >= 2]
+    isempty(candidatos) && return seq, plan
+    nuevo, a = copiar_plan(plan), rand(rng, candidatos)
+    v = rand(rng, 1:length(nuevo[a])-1)
+    append!(nuevo[a][v], vcat([VISITA_O], popat!(nuevo[a], v + 1)))
+    return seq, nuevo
+end
+
 # Lista de vecindades (todas con la firma (ins, seq, plan, rng))
 const VECINDADES = [
     (ins, s, p, r) -> mover_parada(s, p, r),
@@ -151,6 +188,10 @@ const VECINDADES = [
     (ins, s, p, r) -> mover_viaje(s, p, r),
     intercambiar_lotes,
     reubicar_lote,
+    (ins, s, p, r) -> insertar_visita(s, p, r),
+    (ins, s, p, r) -> quitar_visita(s, p, r),
+    (ins, s, p, r) -> unir_por_o(s, p, r),
 ]
 const NOMBRES_VECINDADES = ["mover_parada", "intercambiar_paradas", "fusionar_viajes",
-                            "dividir_viaje", "mover_viaje", "intercambiar_lotes", "reubicar_lote"]
+                            "dividir_viaje", "mover_viaje", "intercambiar_lotes", "reubicar_lote",
+                            "insertar_visita", "quitar_visita", "unir_por_o"]

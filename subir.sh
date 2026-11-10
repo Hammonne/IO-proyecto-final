@@ -3,5 +3,5 @@
 cd "$(dirname "$0")"
 git add .
 git status --short
-git commit -m "Solución 4: ALNS con huecos, arranques húngaros y documentación"
+git commit -m "Solución 4: rutas con visitas intermedias a o y f"
 git push

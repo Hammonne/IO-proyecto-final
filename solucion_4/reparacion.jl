@@ -155,7 +155,7 @@ end
 # --- Operadores ------------------------------------------------------
 
 function limpiar_huecos!(p)
-    foreach(viajes -> foreach(v -> filter!(es_real, v), viajes), p)
+    foreach(viajes -> foreach(v -> filter!(q -> q.lote >= 0, v), viajes), p)   # conserva las visitas
     return limpiar!(p)
 end
 
