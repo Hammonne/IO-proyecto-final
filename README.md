@@ -12,6 +12,7 @@ solucion_6/   Solución 6: híbrido tabú (v5) + patadas de destrucción/reparac
 solucion_7/   Solución 7: tabú con visitas + reoptimización exacta por ventanas (movimientos compuestos)
 solucion_8/   Solución 8: secuencia de inserción de Yin y Hu (2026) + tabú de la v7
 solucion_9/   Solución 9: path relinking entre soluciones élite + tabú de la v7
+solucion_10/  Solución 10: multi-arranque desde las K mejores asignaciones a máquinas (Murty) + tabú
 solucion_reglas_yampi/  Constructivo de reglas sin búsqueda (R1–R4 con excepciones S e Y), hecho por Yampi
   instancias/   Instancias convertidas a .txt
   resultados/   Soluciones generadas y archivos para IO1Lab
@@ -350,6 +351,40 @@ ambas y están en zonas que ni la tabú ni el ALNS visitan.
 - **Limitación:** la transferencia de un lote solo copia su vecino anterior, no las visitas a o/f
   de la guía, así que el camino no siempre llega exactamente a la guía.
 
+### Solución 10 — multi-arranque por asignaciones a máquinas (Murty) + tabú
+**Motivación.** En la 01 nada mejora 326.66 partiendo de ella (ALNS, tabú con muchas semillas,
+ventanas, relinking), así que la solución del líder debe tener **otra estructura**. Además, el
+experimento del húngaro fijo mostró que la mejor asignación a máquinas *sin transporte* no es la
+mejor *con* transporte. En vez de esperar a que la búsqueda llegue sola a otra estructura, se
+recorren a propósito asignaciones distintas (multi-arranque, Martí, Resende y Ribeiro, 2013).
+
+**Método** (`murty.jl`, `main.jl`):
+- **K mejores asignaciones:** con la matriz del método húngaro de la v2 (lote → máquina y posición
+  contada desde el final, costo k·p_ij), el algoritmo de **Murty (1968)** lista las asignaciones en
+  orden de costo: parte el espacio en subproblemas con pares forzados y prohibidos y resuelve cada
+  uno con el húngaro. Se guardan las secuencias por máquina distintas (hasta 1000; en la 01 tarda
+  menos de 1 s).
+- **Fase 1 (60 % del tiempo):** para cada asignación, en orden, plan inicial por reglas de despacho
+  y **tabú solo sobre los viajes de los AGVs** (sin las vecindades que cambian lotes de máquina, ni
+  en las patadas), `SEG_ASIG` segundos cada una (60 por defecto).
+- **Fase 2 (40 %):** las 3 mejores de la fase 1 se pulen con la tabú completa (v7), que ya puede
+  mover lotes entre máquinas.
+- **Diagnóstico:** nuestra mejor solución de la 01 usa **exactamente la 2.ª mejor asignación** de
+  Murty. En la 02 sus lotes por máquina coinciden con la asignación 56; en la 03, con ninguna de las
+  1000 primeras (ahí el transporte pesa más y la asignación se aleja de la de solo máquinas).
+
+**Mini prueba (01, 150 s, 10 s por asignación, 1 núcleo).** Desde cero, sin leer la mejor guardada:
+
+| Asignación de Murty | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| Tabú solo AGVs (10 s) | 328.10 | 326.95 | 328.23 | **326.77** | 328.28 | 328.87 | 329.66 | 329.65 |
+
+- Después de pulir las 3 mejores con la tabú completa: **326.76** (no mejora 326.66, pero llega en
+  2.5 minutos desde cero a 0.1 de nuestra mejor).
+- La asignación 4 llega a 326.77 con una estructura **distinta** de la de nuestra mejor (que es la 2):
+  la idea sirve para encontrar soluciones buenas en otras zonas. Falta la corrida larga (60 s por
+  asignación, ~35 asignaciones por ronda).
+
 ### Experimento: ¿conviene fijar la asignación óptima a máquinas? (instancia 01)
 La mejor solución de la 01 (326.66) se diferencia de la asignación **óptima a máquinas** (método
 húngaro para R‖ΣC, sin transporte) solo en dos lotes: el 9 y el 16 están intercambiados entre las
@@ -386,6 +421,8 @@ eso se repitió la idea en la 01, donde solo faltan 0.06 para el líder.
   anteriores), las ventanas exactas de la v7 y el húngaro fijo. A diferencia de la 07, más
   semillas y más tiempo alrededor de esta solución no alcanzan: la del líder probablemente tiene
   otra estructura (otra asignación a máquinas o a AGVs) que no es vecina de la nuestra.
+- **Mini prueba en la 02 y la 03** (lo que funcionó en la 07: v5 desde la mejor guardada, 120 s,
+  1 núcleo): 405.59 y 476.44, sin cambio. Falta la corrida larga (2 rondas de 3500 s).
 
 ## Mejores valores (10/11/2026)
 
@@ -441,6 +478,7 @@ Los números corresponden a la lista de referencias de abajo.
 | 7 | [5], [9], [10], [11], [12], [13], [14], [15] | [9]–[10]: búsqueda tabú · [11]: ventanas exactas (POPMUSIC) · [12]: *dynasearch* · [13]: intercambio cíclico (VLSN) · [14]–[15]: Or-opt y movimiento de pares, usados en la revisión exhaustiva |
 | 8 | [8], [7], [9], [10] | [8]: secuencia de inserción, decodificación SIA, reparación A1 y operadores por partes · [7]: ruleta adaptativa · [9]–[10]: tabú para pulir |
 | 9 | [9], [10], [16] | [16]: path relinking entre soluciones élite · [9]–[10]: tabú para pulir las intermedias |
+| 10 | [1], [2], [9], [10], [17], [18] | [17]: K mejores asignaciones (Murty) · [1]–[2]: matriz de asignación R‖ΣC · [18]: multi-arranque · [9]–[10]: tabú solo sobre los AGVs y luego completa |
 
 ## Referencias
 
@@ -461,6 +499,8 @@ Los números corresponden a la lista de referencias de abajo.
 14. Or, I. (1976). *Traveling salesman-type combinatorial problems and their relation to the logistics of regional blood banking*. Tesis doctoral, Northwestern University.
 15. Nanry, W. P. y Barnes, J. W. (2000). Solving the pickup and delivery problem with time windows using reactive tabu search. *Transportation Research Part B*, 34(2), 107–121.
 16. Glover, F., Laguna, M. y Martí, R. (2000). Fundamentals of scatter search and path relinking. *Control and Cybernetics*, 29(3), 653–684.
+17. Murty, K. G. (1968). An algorithm for ranking all the assignments in order of increasing cost. *Operations Research*, 16(3), 682–687.
+18. Martí, R., Resende, M. G. C. y Ribeiro, C. C. (2013). Multi-start methods for combinatorial optimization. *European Journal of Operational Research*, 226(1), 1–8.
 
 **Revisadas (problemas relacionados, no usadas directamente)**
 - Zheng, Y., Xiao, Y. y Seo, Y. (2014). A tabu search algorithm for simultaneous machine/AGV scheduling problem. *International Journal of Production Research*, 52(19), 5748–5763.
