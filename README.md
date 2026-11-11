@@ -373,6 +373,20 @@ AGVs, se podía bajar del líder (326.60).
   mejor total.** Esto justifica decidir las dos capas a la vez (v3–v9) y no en dos etapas (como la
   solución 2 o un enfoque "primero asignar y luego transportar").
 
+### Experimento: tabú con varias semillas en la 01 (11/11/2026)
+En la 07 la tabú de la v5 sí logró salir del óptimo local del ALNS: con una semilla nueva (71007)
+bajó de 905.90 a **901.93** en una sola ronda de 3500 s (105 448 iteraciones y 5 reinicios). Por
+eso se repitió la idea en la 01, donde solo faltan 0.06 para el líder.
+
+- **Método:** v5 (tabú) desde la mejor solución (326.66); 3 copias en paralelo con semillas
+  distintas (bases 130000, 140000 y 150000), 2 rondas de 3500 s cada una (unas 6 horas de CPU en
+  total).
+- **Resultado:** las 6 corridas terminan en **326.66**; ninguna mejora.
+- **Conclusión:** en la 01, 326.66 resiste el ALNS, la tabú con 6 semillas nuevas (y las
+  anteriores), las ventanas exactas de la v7 y el húngaro fijo. A diferencia de la 07, más
+  semillas y más tiempo alrededor de esta solución no alcanzan: la del líder probablemente tiene
+  otra estructura (otra asignación a máquinas o a AGVs) que no es vecina de la nuestra.
+
 ## Mejores valores (10/11/2026)
 
 Mejor solución factible de cada instancia y dónde está. "Líder" es el mejor valor del ranking de
