@@ -10,6 +10,7 @@ solucion_5/   Solución 5: búsqueda tabú con lista de candidatos sobre el plan
 solucion_6/   Solución 6: híbrido tabú (v5) + patadas de destrucción/reparación (ALNS de la v4)
 solucion_7/   Solución 7: tabú con visitas + reoptimización exacta por ventanas (movimientos compuestos)
 solucion_8/   Solución 8: secuencia de inserción de Yin y Hu (2026) + tabú de la v7
+solucion_9/   Solución 9: path relinking entre soluciones élite + tabú de la v7
 solucion_reglas_yampi/  Constructivo de reglas sin búsqueda (R1–R4 con excepciones S e Y), hecho por Yampi
   instancias/   Instancias convertidas a .txt
   resultados/   Soluciones generadas y archivos para IO1Lab
@@ -311,6 +312,43 @@ el 30 % del tiempo se busca sobre la secuencia; el resto, la tabú de la v7 pule
 - **Conclusión:** para este problema conviene más el plan explícito de viajes (v3–v7) que la
   representación indirecta.
 
+### Solución 9 — path relinking entre soluciones élite + tabú
+**Motivación.** En la 01 y la 03 hay varias soluciones buenas pero **estructuralmente distintas**:
+por ejemplo, 326.66 (con visitas a f) y 326.77 (sin visitas, de la corrida de la compañera). Las dos
+son óptimos locales estrictos, así que ningún movimiento chico sale de ellas. Path relinking
+(Glover, Laguna y Martí, 2000) explora el **camino entre dos óptimos**: transforma una solución
+(inicio) en otra (guía) paso a paso y evalúa las soluciones intermedias, que combinan atributos de
+ambas y están en zonas que ni la tabú ni el ALNS visitan.
+
+**Método** (`relinking.jl`, `main.jl`):
+- **Conjunto élite:** la mejor guardada (`resultados/`) más una solución por cada subcarpeta de
+  `elite/` (`elite/amiga/`: corrida de la compañera; `elite/v3/`: solución 3). Si son menos de 5
+  distintas, se completa con la tabú desde la solución constructiva usando otras semillas.
+- **Atributos:** la *huella* de cada lote, la misma de la tabú (máquina y lote anterior; AGV y
+  parada anterior de sus dos paradas).
+- **Paso:** se transfiere un lote hacia la guía. Se pone en su máquina detrás del mismo lote que en
+  la guía, y cada una de sus paradas detrás de la misma parada que en la guía.
+- **Relinking voraz:** en cada paso se elige, entre los lotes que aún difieren, la transferencia
+  que da la mejor solución intermedia. El camino termina cuando no quedan diferencias (o tras 2n
+  pasos).
+- **Pulido:** las 2 mejores intermedias (distintas de los extremos) se pulen con la tabú de la v7,
+  y si la resultante es distinta entra al élite.
+- **Selección del par:** el inicio es una de las 2 mejores del élite; la guía es cualquier otra.
+
+**Resultados (honestos): no mejora** (10 minutos por instancia, 1 núcleo, 25 caminos cada una).
+
+| Inst | Élite inicial | Élite al final | Mejor |
+|---|---|---|---|
+| 01 | 326.66, 326.77 (+ 327.45, 327.70 generadas) | + 326.76 y otras nuevas | 326.66 (sin cambio) |
+| 03 | 476.44 (la de la compañera y la de la v3 eran la misma) + 4 generadas entre 502 y 512 | + 477.03, 477.91 | 476.44 (sin cambio) |
+
+- El relinking sí encuentra soluciones **nuevas y cercanas** a la mejor (326.76 en la 01; 477.03
+  en la 03), pero ninguna la supera.
+- En la 03 el élite tenía poca diversidad buena: las soluciones generadas desde la constructiva son
+  un 5–7 % peores y sirven poco de guía.
+- **Limitación:** la transferencia de un lote solo copia su vecino anterior, no las visitas a o/f
+  de la guía, así que el camino no siempre llega exactamente a la guía.
+
 ## Mejores valores (10/11/2026)
 
 Mejor solución factible de cada instancia y dónde está. "Líder" es el mejor valor del ranking de
@@ -325,7 +363,7 @@ IO1Lab a las 09:40 del 10/11.
 | 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_05_io1lab.txt` | 591.40 (nuestro) | primeros |
 | 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_06_io1lab.txt` | 754.42 (nuestro) | primeros |
 | 07 | 906.69 | v4 (ALNS) | `solucion_4/resultados/instancia_07_io1lab.txt` | 905.69 | falta 1.00 |
-| 08 | 1090.72 | v5 (tabú) | `solucion_5/resultados/instancia_08_io1lab.txt` (copiado también a `solucion_4/resultados/`) | 1077.98 | falta 12.74 |
+| 08 | 1083.76 | v5 (tabú) | `solucion_5/resultados/instancia_08_io1lab.txt` (copiado también a `solucion_4/resultados/`) | 1077.98 | falta 5.78 |
 | 09 | 964.21 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_09_io1lab.txt` | 964.36 (nuestro) | primeros |
 | 10 | 997.63 | v4 sin visitas (compañera) + 1 visita intermedia agregada por descenso | `solucion_4/resultados/instancia_10_io1lab.txt` | 998.97 (nuestro) | primeros |
 
@@ -343,7 +381,7 @@ IO1Lab a las 09:40 del 10/11.
 | 05 | 601.34 | 591.40 | 591.40 |
 | 06 | 759.10 | 754.42 | 754.42 |
 | 07 | 910.12 | 906.70 | 906.69 |
-| 08 | 1108.86 | 1092.96 | 1090.72 (con la tabú de la v5) |
+| 08 | 1108.86 | 1092.96 | 1083.76 (con la tabú de la v5) |
 | 09 | 1002.51 | 964.36 | 964.36 |
 | 10 | 1091.61 | 998.97 | 998.97 |
 
@@ -364,6 +402,7 @@ Los números corresponden a la lista de referencias de abajo.
 | 6 | [5], [6], [7], [8], [9], [10] | [9]–[10]: búsqueda tabú como búsqueda local · [7]: destrucción/reparación y ruleta adaptativa como perturbación · [6], [8]: operadores de la v4 · [5]: misma representación |
 | 7 | [5], [9], [10], [11], [12], [13], [14], [15] | [9]–[10]: búsqueda tabú · [11]: ventanas exactas (POPMUSIC) · [12]: *dynasearch* · [13]: intercambio cíclico (VLSN) · [14]–[15]: Or-opt y movimiento de pares, usados en la revisión exhaustiva |
 | 8 | [8], [7], [9], [10] | [8]: secuencia de inserción, decodificación SIA, reparación A1 y operadores por partes · [7]: ruleta adaptativa · [9]–[10]: tabú para pulir |
+| 9 | [9], [10], [16] | [16]: path relinking entre soluciones élite · [9]–[10]: tabú para pulir las intermedias |
 
 ## Referencias
 
@@ -383,8 +422,14 @@ Los números corresponden a la lista de referencias de abajo.
 13. Ahuja, R. K., Ergun, Ö., Orlin, J. B. y Punnen, A. P. (2002). A survey of very large-scale neighborhood search techniques. *Discrete Applied Mathematics*, 123, 75–102.
 14. Or, I. (1976). *Traveling salesman-type combinatorial problems and their relation to the logistics of regional blood banking*. Tesis doctoral, Northwestern University.
 15. Nanry, W. P. y Barnes, J. W. (2000). Solving the pickup and delivery problem with time windows using reactive tabu search. *Transportation Research Part B*, 34(2), 107–121.
+16. Glover, F., Laguna, M. y Martí, R. (2000). Fundamentals of scatter search and path relinking. *Control and Cybernetics*, 29(3), 653–684.
 
 **Revisadas (problemas relacionados, no usadas directamente)**
+- Zheng, Y., Xiao, Y. y Seo, Y. (2014). A tabu search algorithm for simultaneous machine/AGV scheduling problem. *International Journal of Production Research*, 52(19), 5748–5763.
+- Ruiz, R. y Stützle, T. (2007). A simple and effective iterated greedy algorithm for the permutation flowshop scheduling problem. *European Journal of Operational Research*, 177(3), 2033–2049.
+- Rodriguez, F. J., Lozano, M., Blum, C. y García-Martínez, C. (2013). An iterated greedy algorithm for the large-scale unrelated parallel machines scheduling problem. *Computers & Operations Research*, 40(7), 1829–1841.
+- Burke, E. K. y Bykov, Y. (2017). The late acceptance hill-climbing heuristic. *European Journal of Operational Research*, 258(1), 70–78.
+- Dumez, D., Tilk, C., Irnich, S., Lehuédé, F., et al. (2021). Hybridizing large neighborhood search and exact methods for generalized vehicle routing problems with time windows. *EURO Journal on Transportation and Logistics*, 10, 100040. (Combinación de rutas con un modelo exacto: descartada porque necesita un solver.)
 - Integrated scheduling problem of multi-load AGVs and parallel machines considering the recovery process (2025). *Swarm and Evolutionary Computation*. https://www.sciencedirect.com/science/article/abs/pii/S2210650225000197
 - Joint scheduling of parallel machines and AGVs with sequence-dependent setup times in a matrix workshop. *Computers & Industrial Engineering*. https://www.sciencedirect.com/science/article/abs/pii/S0360835223006459
 - Scheduling of no buffer job shop cells with blocking constraints and AGVs. *Applied Soft Computing*. https://www.sciencedirect.com/science/article/abs/pii/S1568494614003937
