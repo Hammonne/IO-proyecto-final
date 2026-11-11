@@ -206,6 +206,15 @@ solución 3 (Glover, 1986; Glover y Laguna, 1997).
   mejor movimiento, por eso rinde mejor en las instancias medianas y grandes.
 - **Prueba de 1 hora** partiendo de la mejor solución de la v4 (donde el ALNS ya no mejoraba):
   la 08 bajó de 1092.24 a **1090.72**; la 02 (409.44) y la 07 (906.69) no mejoraron.
+- **Corridas largas de amigos (10–11/11/2026)**, siempre desde la mejor solución guardada:
+  - 07: 1 ronda de 3500 s (semilla 71007, 105 448 iteraciones, 5 reinicios): de 905.90 (ALNS) a
+    **901.93**. Aquí la tabú salió del óptimo local donde el ALNS ya no mejoraba.
+  - 09 y 10: 6 rondas de 3500 s (semillas 50000+), unas 210 000–280 000 iteraciones por ronda. La
+    09 baja en casi todas las rondas (958.69 → **958.59**) y la 10 en todas (993.00 → **990.62**;
+    con una visita intermedia agregada por descenso, **990.47**). La 08 bajó de 1082.55 a 1080.90,
+    pero en casa ya había llegado a 1080.08.
+  - En cambio, la corrida de 6 horas de la v4 (ALNS) en la 01, 02 y 03 y de la v6 en la 07 no
+    mejoró nada: más tiempo de ALNS ya no ayuda, la tabú sí.
 - **Limitaciones:** las huellas solo miran al vecino anterior, así que algunos movimientos
   distintos comparten huella; la tenencia y el tamaño de la lista se fijaron con pocas pruebas.
 
@@ -424,23 +433,23 @@ eso se repitió la idea en la 01, donde solo faltan 0.06 para el líder.
 - **Mini prueba en la 02 y la 03** (lo que funcionó en la 07: v5 desde la mejor guardada, 120 s,
   1 núcleo): 405.59 y 476.44, sin cambio. Falta la corrida larga (2 rondas de 3500 s).
 
-## Mejores valores (10/11/2026)
+## Mejores valores (11/11/2026)
 
 Mejor solución factible de cada instancia y dónde está. "Líder" es el mejor valor del ranking de
-IO1Lab a las 09:40 del 10/11.
+IO1Lab el 11/11 a las 13:45 (el grupo GHI subió las 10 instancias entre 13:33 y 13:45).
 
 | Inst | Mejor valor | Método | Archivo | Líder IO1Lab | Estado |
 |---|---|---|---|---|---|
-| 01 | 326.66 | v4 (ALNS) | `solucion_4/resultados/instancia_01_io1lab.txt` | 326.60 | falta 0.06 |
-| 02 | 405.59 | v4 (ALNS sin visitas, 10 rondas, corrida de la compañera) | `solucion_4/resultados/instancia_02_io1lab.txt` | 404.00 | falta 1.59 |
-| 03 | 476.44 | v3/v4 | `solucion_4/resultados/instancia_03_io1lab.txt` | 475.92 | falta 0.52 |
-| 04 | 525.92 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_04_io1lab.txt` | 526.40 (nuestro) | primeros |
-| 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_05_io1lab.txt` | 591.40 (nuestro) | primeros |
-| 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_06_io1lab.txt` | 754.42 (nuestro) | primeros |
-| 07 | 901.93 | v5 (tabú, 1 ronda de 3500 s, semilla 71007, corrida de una amiga) partiendo de la 905.90 de la v4 | `mejores/instancia_07_io1lab.txt` | 901.93 (nuestro) | primeros |
-| 08 | 1080.08 | v5 (tabú) | `mejores/instancia_08_io1lab.txt` | 1077.98 | falta 2.10 |
-| 09 | 958.74 | v5 (tabú, corrida de la compañera) | `mejores/instancia_09_io1lab.txt` | 964.36 (nuestro) | primeros |
-| 10 | 993.16 | v5 (tabú, corrida de la compañera) + 2 visitas intermedias agregadas por descenso | `mejores/instancia_10_io1lab.txt` | 998.97 (nuestro) | primeros |
+| 01 | 326.66 | v4 (ALNS) | `solucion_4/resultados/instancia_01_io1lab.txt` | 326.60 (GHI) | falta 0.06 |
+| 02 | 405.59 | v4 (ALNS sin visitas, 10 rondas, corrida de la compañera) | `solucion_4/resultados/instancia_02_io1lab.txt` | 403.35 (GHI) | falta 2.24 |
+| 03 | 476.44 | v3/v4 | `solucion_4/resultados/instancia_03_io1lab.txt` | 473.04 (GHI) | falta 3.40 |
+| 04 | 525.92 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_04_io1lab.txt` | 521.42 (GHI) | falta 4.50 |
+| 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_05_io1lab.txt` | 590.33 (GHI) | falta 1.01 |
+| 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_06_io1lab.txt` | 741.33 (GHI) | falta 12.91 |
+| 07 | 901.93 | v5 (tabú, 1 ronda de 3500 s, semilla 71007, corrida de una amiga) partiendo de la 905.90 de la v4 | `mejores/instancia_07_io1lab.txt` | 877.81 (GHI) | falta 24.12 |
+| 08 | 1080.08 | v5 (tabú) | `mejores/instancia_08_io1lab.txt` | 1065.64 (GHI) | falta 14.44 |
+| 09 | 958.59 | v5 (tabú, 6 rondas de 3500 s, corrida de un amigo) | `mejores/instancia_09_io1lab.txt` | 955.55 (GHI) | falta 3.04 |
+| 10 | 990.47 | v5 (tabú, 6 rondas de 3500 s, corrida de un amigo: 990.62) + 1 visita intermedia agregada por descenso | `mejores/instancia_10_io1lab.txt` | 969.80 (GHI) | falta 20.67 |
 
 La carpeta `mejores/` tiene la mejor solución de cada instancia (todas validadas como factibles). Cada `solucion_X/resultados/` guarda lo que encontró esa versión.
 

@@ -1,5 +1,5 @@
 cd "$(dirname "$0")"
 git add .
 git status --short
-git commit -m "Agrega la solución 10 (asignaciones de Murty + tabú) y sus mini pruebas"
+git commit -m "Mejora la 09 y la 10 (tabú v5, corridas de amigos) y actualiza los líderes (GHI)"
 git push
