@@ -2,6 +2,7 @@
 
 ```
 datos/        Instancias originales (.xlsx)
+mejores/      MEJOR solución de cada instancia (la que se sube a IO1Lab) + tabla de qué versión la encontró
 solucion_1/   Solución 1: lectura directa del Excel (main.jl)
 solucion_2/   Solución 2: metaheurística con reglas de despacho para los AGVs
 solucion_3/   Solución 3: plan explícito de viajes de AGVs + recocido con vecindades adaptativas
@@ -362,10 +363,10 @@ IO1Lab a las 09:40 del 10/11.
 | 04 | 525.92 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_04_io1lab.txt` | 526.40 (nuestro) | primeros |
 | 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_05_io1lab.txt` | 591.40 (nuestro) | primeros |
 | 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_06_io1lab.txt` | 754.42 (nuestro) | primeros |
-| 07 | 906.69 | v4 (ALNS) | `solucion_4/resultados/instancia_07_io1lab.txt` | 905.69 | falta 1.00 |
-| 08 | 1083.76 | v5 (tabú) | `solucion_5/resultados/instancia_08_io1lab.txt` (copiado también a `solucion_4/resultados/`) | 1077.98 | falta 5.78 |
-| 09 | 964.21 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_09_io1lab.txt` | 964.36 (nuestro) | primeros |
-| 10 | 997.63 | v4 sin visitas (compañera) + 1 visita intermedia agregada por descenso | `solucion_4/resultados/instancia_10_io1lab.txt` | 998.97 (nuestro) | primeros |
+| 07 | 906.57 | v6 (híbrido tabú + LNS, corrida de la compañera) | `solucion_4/resultados/instancia_07_io1lab.txt` | 905.69 | falta 0.88 |
+| 08 | 1082.55 | v5 (tabú) | `solucion_5/resultados/instancia_08_io1lab.txt` (copiado también a `solucion_4/resultados/`) | 1077.98 | falta 4.57 |
+| 09 | 958.74 | v5 (tabú, corrida de la compañera) | `solucion_4/resultados/instancia_09_io1lab.txt` | 964.36 (nuestro) | primeros |
+| 10 | 993.16 | v5 (tabú, corrida de la compañera) + 2 visitas intermedias agregadas por descenso | `solucion_4/resultados/instancia_10_io1lab.txt` | 998.97 (nuestro) | primeros |
 
 `solucion_4/resultados/` tiene la mejor solución de cada instancia (todas validadas como factibles).
 

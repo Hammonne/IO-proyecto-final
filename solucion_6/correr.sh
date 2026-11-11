@@ -30,7 +30,7 @@ export JULIA_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 for ronda in $(seq 1 "$RONDAS"); do
     echo "Ronda $ronda de $RONDAS ($(date +%H:%M)): $INSTANCIAS"
     for k in $INSTANCIAS; do
-        julia main.jl "instancias/instancia_$k.txt" "$SEGUNDOS" "$((ronda * 1000 + 10#$k))" \
+        julia main.jl "instancias/instancia_$k.txt" "$SEGUNDOS" "$((${SEMILLA_BASE:-0} + ronda * 1000 + 10#$k))" \
             > "logs/ronda${ronda}_$k.txt" 2>&1 &
         [ "${UN_NUCLEO:-0}" = 1 ] && wait      # una instancia a la vez
     done
