@@ -386,8 +386,8 @@ IO1Lab a las 09:40 del 10/11.
 | 04 | 525.92 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_04_io1lab.txt` | 526.40 (nuestro) | primeros |
 | 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_05_io1lab.txt` | 591.40 (nuestro) | primeros |
 | 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_06_io1lab.txt` | 754.42 (nuestro) | primeros |
-| 07 | 905.90 | v4 (ALNS con visitas), partiendo de la 906.57 de la v6 | `mejores/instancia_07_io1lab.txt` | 905.69 | falta 0.21 |
-| 08 | 1080.41 | v5 (tabú) | `mejores/instancia_08_io1lab.txt` | 1077.98 | falta 2.43 |
+| 07 | 901.93 | v5 (tabú, 1 ronda de 3500 s, semilla 71007, corrida de una amiga) partiendo de la 905.90 de la v4 | `mejores/instancia_07_io1lab.txt` | 901.93 (nuestro) | primeros |
+| 08 | 1080.08 | v5 (tabú) | `mejores/instancia_08_io1lab.txt` | 1077.98 | falta 2.10 |
 | 09 | 958.74 | v5 (tabú, corrida de la compañera) | `mejores/instancia_09_io1lab.txt` | 964.36 (nuestro) | primeros |
 | 10 | 993.16 | v5 (tabú, corrida de la compañera) + 2 visitas intermedias agregadas por descenso | `mejores/instancia_10_io1lab.txt` | 998.97 (nuestro) | primeros |
 

@@ -12,8 +12,8 @@ Cada carpeta `solucion_X/resultados/` guarda lo que encontró **esa** versión.
 | 04 | 525.92 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/` |
 | 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/` |
 | 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/` |
-| 07 | 905.90 | v4 (ALNS con visitas), partiendo de la 906.57 de la v6 | `solucion_4/resultados/` |
-| 08 | 1080.41 | v5 (tabú) | `solucion_5/resultados/` |
+| 07 | 901.93 | v5 (tabú: 1 ronda de 3500 s, semilla 71007, 105 448 iteraciones y 5 reinicios; corrida de una amiga), partiendo de la 905.90 de la v4 | `solucion_5/resultados/` |
+| 08 | 1080.08 | v5 (tabú) | `solucion_5/resultados/` |
 | 09 | 958.74 | v5 (tabú, corrida de la compañera) | `solucion_5/resultados/` |
 | 10 | 993.16 | v5 (tabú, corrida de la compañera: 993.29) + 2 visitas intermedias agregadas por descenso | `solucion_5/resultados/` tiene la 993.29 |
 
