@@ -350,6 +350,29 @@ ambas y están en zonas que ni la tabú ni el ALNS visitan.
 - **Limitación:** la transferencia de un lote solo copia su vecino anterior, no las visitas a o/f
   de la guía, así que el camino no siempre llega exactamente a la guía.
 
+### Experimento: ¿conviene fijar la asignación óptima a máquinas? (instancia 01)
+La mejor solución de la 01 (326.66) se diferencia de la asignación **óptima a máquinas** (método
+húngaro para R‖ΣC, sin transporte) solo en dos lotes: el 9 y el 16 están intercambiados entre las
+máquinas 2 y 3. Se probó si, fijando esa asignación óptima y optimizando solo los viajes de los
+AGVs, se podía bajar del líder (326.60).
+
+- **Método:** máquinas fijas en la asignación del húngaro; plan inicial por reglas de despacho
+  (331.75); tabú de la v9 con solo las vecindades del plan (mover/intercambiar paradas,
+  fusionar/dividir/mover viajes y visitas). Las perturbaciones tampoco cambian las máquinas.
+  4 semillas de 8 minutos.
+- **Resultado:**
+
+  | | Máquinas (ΣC/n sin transporte) | Agregado por el transporte | Total |
+  |---|---|---|---|
+  | Nuestra mejor | 290.045 | 36.614 | **326.66** |
+  | Asignación óptima a máquinas (mejor de 4 semillas) | 289.818 | 38.19 | 328.00 |
+
+- **Conclusión:** la asignación óptima a máquinas gana 0.23 en la parte de máquinas, pero el
+  transporte le agrega 1.6 más por lote: con el 16 primero en la máquina 2 y el 9 en la 3, los
+  viajes de los AGVs se combinan peor. **Optimizar máquinas y transporte por separado no lleva al
+  mejor total.** Esto justifica decidir las dos capas a la vez (v3–v9) y no en dos etapas (como la
+  solución 2 o un enfoque "primero asignar y luego transportar").
+
 ## Mejores valores (10/11/2026)
 
 Mejor solución factible de cada instancia y dónde está. "Líder" es el mejor valor del ranking de
