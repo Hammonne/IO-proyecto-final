@@ -1,5 +1,5 @@
 cd "$(dirname "$0")"
 git add .
 git status --short
-git commit -m "Ordena resultados por versión y agrega mejores/; 07, 08, 09 y 10 mejoran"
+git commit -m "07 baja a 905.90 y 08 a 1080.41; solucion_4/resultados solo con lo de la v4"
 git push

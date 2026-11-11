@@ -363,12 +363,12 @@ IO1Lab a las 09:40 del 10/11.
 | 04 | 525.92 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_04_io1lab.txt` | 526.40 (nuestro) | primeros |
 | 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_05_io1lab.txt` | 591.40 (nuestro) | primeros |
 | 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_06_io1lab.txt` | 754.42 (nuestro) | primeros |
-| 07 | 906.57 | v6 (híbrido tabú + LNS, corrida de la compañera) | `solucion_4/resultados/instancia_07_io1lab.txt` | 905.69 | falta 0.88 |
-| 08 | 1082.55 | v5 (tabú) | `solucion_5/resultados/instancia_08_io1lab.txt` (copiado también a `solucion_4/resultados/`) | 1077.98 | falta 4.57 |
-| 09 | 958.74 | v5 (tabú, corrida de la compañera) | `solucion_4/resultados/instancia_09_io1lab.txt` | 964.36 (nuestro) | primeros |
-| 10 | 993.16 | v5 (tabú, corrida de la compañera) + 2 visitas intermedias agregadas por descenso | `solucion_4/resultados/instancia_10_io1lab.txt` | 998.97 (nuestro) | primeros |
+| 07 | 905.90 | v4 (ALNS con visitas), partiendo de la 906.57 de la v6 | `mejores/instancia_07_io1lab.txt` | 905.69 | falta 0.21 |
+| 08 | 1080.41 | v5 (tabú) | `mejores/instancia_08_io1lab.txt` | 1077.98 | falta 2.43 |
+| 09 | 958.74 | v5 (tabú, corrida de la compañera) | `mejores/instancia_09_io1lab.txt` | 964.36 (nuestro) | primeros |
+| 10 | 993.16 | v5 (tabú, corrida de la compañera) + 2 visitas intermedias agregadas por descenso | `mejores/instancia_10_io1lab.txt` | 998.97 (nuestro) | primeros |
 
-`solucion_4/resultados/` tiene la mejor solución de cada instancia (todas validadas como factibles).
+La carpeta `mejores/` tiene la mejor solución de cada instancia (todas validadas como factibles). Cada `solucion_X/resultados/` guarda lo que encontró esa versión.
 
 ## Resultados (promedio de finalización, s)
 

@@ -12,10 +12,10 @@ Cada carpeta `solucion_X/resultados/` guarda lo que encontró **esa** versión.
 | 04 | 525.92 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/` |
 | 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/` |
 | 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/` |
-| 07 | 906.57 | v6 (híbrido tabú + LNS, corrida de la compañera) | `solucion_6/resultados/` |
-| 08 | 1082.55 | v5 (tabú) | `solucion_5/resultados/` |
+| 07 | 905.90 | v4 (ALNS con visitas), partiendo de la 906.57 de la v6 | `solucion_4/resultados/` |
+| 08 | 1080.41 | v5 (tabú) | `solucion_5/resultados/` |
 | 09 | 958.74 | v5 (tabú, corrida de la compañera) | `solucion_5/resultados/` |
-| 10 | 993.16 | v5 (tabú, corrida de la compañera; 993.29) + 2 visitas intermedias agregadas por descenso | `solucion_5/resultados/` (993.29) |
+| 10 | 993.16 | v5 (tabú, corrida de la compañera: 993.29) + 2 visitas intermedias agregadas por descenso | `solucion_5/resultados/` tiene la 993.29 |
 
 Todas se validaron con `validador.jl` (factibles) antes de subirlas.
 
