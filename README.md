@@ -431,6 +431,86 @@ las vecindades de la v5 solo mueven **una parada o un viaje completo**: ninguna 
   son más caras). En la 06 la v5 no se mueve en 5 minutos; la v11 baja 1–3 puntos.
 - Nuevas mejores: **06 = 751.30** y **07 = 898.20**.
 
+### Corrida larga de la v11 y plan siguiente (12/11/2026)
+**Corrida:** v11 desde la mejor guardada, 8 rondas de 3500 s (semillas 70xxxx, una nueva por ronda),
+6 instancias en paralelo (1 núcleo cada una), del 11/11 22:08 al 12/11 05:56.
+
+| Inst | Inicio | R1 | R2 | R3 | R4 | R5 | R6 | R7 | **R8** |
+|---|---|---|---|---|---|---|---|---|---|
+| 04 | 525.92 | 525.92 | 525.92 | 525.52 | 525.16 | 523.98 | 523.84 | 523.75 | **523.74** |
+| 06 | 751.30 | 750.57 | 749.07 | 748.95 | 748.95 | 748.87 | 748.84 | 748.84 | **748.73** |
+| 07 | 898.20 | 896.42 | 896.28 | 896.18 | 896.15 | 896.10 | 894.27 | 893.56 | **892.68** |
+| 08 | 1079.92 | 1077.92 | 1074.79 | 1074.37 | 1074.22 | 1072.28 | 1071.29 | 1071.29 | **1071.07** |
+| 09 | 958.59 | 957.46 | 956.92 | 956.90 | 956.76 | 956.61 | 955.31 | 955.07 | **954.27** |
+| 10 | 990.47 | 983.47 | 974.74 | 974.57 | 972.18 | 972.10 | 972.09 | 972.05 | **972.05** |
+
+**Análisis de los 48 logs: ¿cuándo mejora la tabú?** La tabú reinicia (desde la mejor, con una
+perturbación, vaciando la lista tabú) cuando pasa el 10 % del tiempo (350 s) sin mejorar.
+
+- **Las mejoras llegan justo después de un reinicio:** de 140 mejoras registradas, 96 aparecen en
+  las primeras 20 000 iteraciones del tramo. En la 04 un tramo dura unas 200 000 iteraciones; lo
+  demás es la solución actual deambulando 3–6 puntos por encima de la mejor sin encontrar nada.
+- **El salto del reinicio importa, y conviene que sea chico:**
+
+  | Perturbación al reiniciar (sobre la mejor) | Tramos que mejoraron |
+  |---|---|
+  | 0 (vuelve a la mejor y solo vacía la lista tabú) | 50 de 122 (40 %) |
+  | chica (< 5) | 13 de 57 (22 %) |
+  | media (5–20) | 7 de 67 (10 %) |
+  | grande (> 20, hasta +321) | 7 de 104 (6 %) |
+
+- **Bug en la perturbación** (`busqueda_plan.jl`, `perturbar_plan`): `for _ in 1:rand(MOVS_PATADA), _ in 1:20`
+  con `break` corta los **dos** bucles en Julia, así que se aplica **un solo** movimiento (no 3–8),
+  elegido entre las 10 vecindades al azar, incluidas las de visitas que la tabú no usa (pesos 0). De
+  ahí los saltos enormes.
+
+**¿Más lejos o más cerca? Dos cosas distintas.** La v11 ganó a la v5 con movimientos **más grandes**
+(CROSS-exchange de tramos de 1–3 viajes y 2-opt\* de colas). Pero esos movimientos están **dentro**
+de la tabú: entran a la lista de candidatos y se aplican solo si son el mejor vecino, y además se
+eligen guiados por los retrasos. Es la idea de las vecindades grandes (VLSN [13]) y de combinar
+vecindades de distinto tamaño (VNS [23]): **vecindades más ricas, evaluadas.** El salto del
+reinicio, en cambio, es **al azar y se acepta sin mirar**: si es grande, rompe la estructura buena
+y equivale casi a empezar de nuevo. La búsqueda local iterada [4] y la tabú iterada [22]
+recomiendan justo eso: perturbaciones pequeñas desde la mejor y tramos de búsqueda cortos. Los datos
+de arriba lo confirman. Así que no hay contradicción: **moverse lejos con criterio sirve; saltar
+lejos a ciegas no.**
+
+**Qué ya se había probado (v3–v10) y cómo encaja con esto:**
+- **Tramos cortos con saltos grandes = v6.** El híbrido de la v6 ya corta la tabú cuando se estanca
+  el 3 % del tiempo, pero reinicia con una patada LNS (saca y reinserta hasta el 30 % de los lotes).
+  En la 07 no mejoró en 6 horas, y en la 08 bajó solo 0.16 en una ronda. Coincide con la tabla de
+  arriba: el salto grande es lo que falla, no los tramos cortos. La v12 prueba lo que falta: tramos
+  cortos con saltos **chicos**.
+- **Volver a la mejor si la actual se aleja más del 2 %** ya existe en la v7–v10
+  (`MAX_ALEJAMIENTO`), pero la v11 parte de la v5 y no la tiene. En la v11 la actual deambula
+  0.3–0.7 % por encima de la mejor, así que con esa regla casi nunca se activaría. Los reinicios
+  más frecuentes de la v12 cumplen ese papel.
+- **El bug de la perturbación está en todas las versiones (v3–v11):** todas comparten
+  `busqueda_plan.jl`. Donde este README dice "3–8 movimientos al azar" (v3, v5), en la práctica
+  fue **1** movimiento.
+- **El tamaño de la lista de candidatos y la tenencia** se fijaron "con pocas pruebas" (v5,
+  limitaciones). No se cambian en la v12 para medir un solo efecto a la vez; se podrían probar
+  después.
+- **Ojo con `seguir.sh`:** su plan B para instancias estancadas es la v6 (patadas grandes), que
+  los datos ponen en duda. Si la v12 gana la prueba, el plan B debería ser la v12 o volver a la
+  mejor con otra semilla.
+
+**Plan (v12 = v11 con estos cambios), a probar antes de otra corrida larga:**
+1. **Tramos cortos (tabú iterada [22], ILS [4]):** reiniciar tras el 2 % del tiempo sin mejorar
+   (70 s) en vez del 10 % (350 s): unas 5 veces más reinicios en la misma hora.
+2. **Perturbación chica y con las vecindades de la tabú [4]:** 1–2 movimientos con `PESOS_TABU`
+   (sin visitas); si el salto queda a más de +5 de la mejor, se descarta y se sortea otro.
+3. **Mezcla de reinicios:** la mitad vuelve a la mejor tal cual (solo vacía la lista tabú, el caso
+   que más rindió: 40 %) y la otra mitad con la perturbación chica.
+4. **Variante:** más peso a las vecindades de ruteo (de 0.06 a 0.12 cada una), porque son las que
+   hicieron ganar a la v11.
+
+**Prueba:** v11 contra v12 contra v12 + ruteo, con las mismas semillas, en la 07 y la 09 (las que
+seguían mejorando en la ronda 8), 2 rondas de 30 min. Si la v12 gana, reemplaza a la v11 en
+`seguir.sh` (rondas adaptativas: sigue con otra semilla mientras mejore; si se estanca 2 rondas,
+cambia a la v6; si se estanca 4, descansa). No se cambia el tamaño de la lista de candidatos ni se
+agrandan las perturbaciones: los datos no lo apoyan.
+
 ### Experimento: ¿conviene fijar la asignación óptima a máquinas? (instancia 01)
 La mejor solución de la 01 (326.66) se diferencia de la asignación **óptima a máquinas** (método
 húngaro para R‖ΣC, sin transporte) solo en dos lotes: el 9 y el 16 están intercambiados entre las
@@ -471,23 +551,23 @@ eso se repitió la idea en la 01, donde solo faltan 0.06 para el líder.
   1 núcleo): 405.59 y 476.44, sin cambio. En la corrida larga de la 03 (2 rondas de 3500 s) y de
   la 09 (2 rondas), tampoco hay cambio: 476.44 y 958.59.
 
-## Mejores valores (11/11/2026)
+## Mejores valores (12/11/2026)
 
-Mejor solución factible de cada instancia y dónde está. "Líder" es el mejor valor del ranking de
-IO1Lab el 11/11 a las 13:45 (el grupo GHI subió las 10 instancias entre 13:33 y 13:45).
+Mejor solución factible de cada instancia (todas en `mejores/`). "Líder" es el mejor valor del
+ranking de IO1Lab el 11/11 a las 13:45 (grupo GHI).
 
-| Inst | Mejor valor | Método | Archivo | Líder IO1Lab | Estado |
-|---|---|---|---|---|---|
-| 01 | 326.66 | v4 (ALNS) | `solucion_4/resultados/instancia_01_io1lab.txt` | 326.60 (GHI) | falta 0.06 |
-| 02 | 405.59 | v4 (ALNS sin visitas, 10 rondas, corrida de la compañera) | `solucion_4/resultados/instancia_02_io1lab.txt` | 403.35 (GHI) | falta 2.24 |
-| 03 | 476.44 | v3/v4 | `solucion_4/resultados/instancia_03_io1lab.txt` | 473.04 (GHI) | falta 3.40 |
-| 04 | 525.92 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_04_io1lab.txt` | 521.42 (GHI) | falta 4.50 |
-| 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_05_io1lab.txt` | 590.33 (GHI) | falta 1.01 |
-| 06 | 751.30 | v11 (tabú + ruteo entre AGVs, 300 s, semilla 2) partiendo de la 754.24 de la v4 | `mejores/instancia_06_io1lab.txt` | 741.33 (GHI) | falta 9.97 |
-| 07 | 898.20 | v11 (tabú + ruteo entre AGVs, 300 s, semilla 1) partiendo de la 901.93 de la v5 | `mejores/instancia_07_io1lab.txt` | 877.81 (GHI) | falta 20.39 |
-| 08 | 1079.92 | v6 (tabú + patadas ALNS, 1 ronda de 3500 s) partiendo de la 1080.08 de la v5 | `mejores/instancia_08_io1lab.txt` | 1065.64 (GHI) | falta 14.28 |
-| 09 | 958.59 | v5 (tabú, 6 rondas de 3500 s, corrida de un amigo) | `mejores/instancia_09_io1lab.txt` | 955.55 (GHI) | falta 3.04 |
-| 10 | 990.47 | v5 (tabú, 6 rondas de 3500 s, corrida de un amigo: 990.62) + 1 visita intermedia agregada por descenso | `mejores/instancia_10_io1lab.txt` | 969.80 (GHI) | falta 20.67 |
+| Inst | Mejor valor | Método | Líder IO1Lab (11/11) | Estado |
+|---|---|---|---|---|
+| 01 | 326.66 | v4 (ALNS) | 326.60 | falta 0.06 |
+| 02 | 405.59 | v4 (ALNS sin visitas, 10 rondas, corrida de la compañera) | 403.35 | falta 2.24 |
+| 03 | 476.44 | v3/v4 | 473.04 | falta 3.40 |
+| 04 | 523.74 | v11 (8 rondas de 3500 s, 12/11) | 521.42 | falta 2.32 |
+| 05 | 590.90 | origen desconocido (zip `resultados_heuristica_local`, 12/11), desde la 591.34 de la v4 | 590.33 | falta 0.57 |
+| 06 | 748.73 | v11 (8 rondas de 3500 s, 12/11) | 741.33 | falta 7.40 |
+| 07 | 892.68 | v11 (8 rondas de 3500 s, 12/11) | 877.81 | falta 14.87 |
+| 08 | 1071.07 | v11 (8 rondas de 3500 s, 12/11) | 1065.64 | falta 5.43 |
+| 09 | 954.27 | v11 (8 rondas de 3500 s, 12/11) | 955.55 | **gana por 1.28** |
+| 10 | 972.05 | v11 (8 rondas de 3500 s, 12/11) | 969.80 | falta 2.25 |
 
 La carpeta `mejores/` tiene la mejor solución de cada instancia (todas validadas como factibles). Cada `solucion_X/resultados/` guarda lo que encontró esa versión.
 
@@ -527,6 +607,7 @@ Los números corresponden a la lista de referencias de abajo.
 | 9 | [9], [10], [16] | [16]: path relinking entre soluciones élite · [9]–[10]: tabú para pulir las intermedias |
 | 10 | [1], [2], [9], [10], [17], [18] | [17]: K mejores asignaciones (Murty) · [1]–[2]: matriz de asignación R‖ΣC · [18]: multi-arranque · [9]–[10]: tabú solo sobre los AGVs y luego completa |
 | 11 | [9], [10], [19], [20], [21] | [9]–[10]: tabú de la v5 · [19]: CROSS-exchange · [20]: 2-opt\* · [21]: elegir los movimientos en la parte crítica (aquí, los lotes más retrasados por el transporte) |
+| 12 (plan) | [4], [13], [22], [23] | [22]: tabú iterada (tramos cortos + reinicio desde la mejor) · [4]: perturbaciones pequeñas de ILS · [13], [23]: vecindades grandes evaluadas dentro de la búsqueda (no saltos al azar) |
 
 ## Referencias
 
@@ -552,6 +633,8 @@ Los números corresponden a la lista de referencias de abajo.
 19. Taillard, É., Badeau, P., Gendreau, M., Guertin, F. y Potvin, J.-Y. (1997). A tabu search heuristic for the vehicle routing problem with soft time windows. *Transportation Science*, 31(2), 170–186.
 20. Potvin, J.-Y. y Rousseau, J.-M. (1995). An exchange heuristic for routeing problems with time windows. *Journal of the Operational Research Society*, 46(12), 1433–1446.
 21. Nowicki, E. y Smutnicki, C. (1996). A fast taboo search algorithm for the job shop problem. *Management Science*, 42(6), 797–813.
+22. Misevicius, A. (2005). A tabu search algorithm for the quadratic assignment problem. *Computational Optimization and Applications*, 30(1), 95–111.
+23. Mladenović, N. y Hansen, P. (1997). Variable neighborhood search. *Computers & Operations Research*, 24(11), 1097–1100.
 
 **Revisadas (problemas relacionados, no usadas directamente)**
 - Zheng, Y., Xiao, Y. y Seo, Y. (2014). A tabu search algorithm for simultaneous machine/AGV scheduling problem. *International Journal of Production Research*, 52(19), 5748–5763.
