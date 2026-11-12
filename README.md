@@ -393,6 +393,10 @@ recorren a propósito asignaciones distintas (multi-arranque, Martí, Resende y 
 - La asignación 4 llega a 326.77 con una estructura **distinta** de la de nuestra mejor (que es la 2):
   la idea sirve para encontrar soluciones buenas en otras zonas. Falta la corrida larga (60 s por
   asignación, ~35 asignaciones por ronda).
+- **Corrida larga (01, 2 rondas de 3500 s, 60 s por asignación, 34 asignaciones por ronda):** la
+  mejor de la fase 1 es 326.77 (asignaciones 2 y 4) y después de pulir, **326.76**. No mejora
+  326.66: las asignaciones más lejanas (12 en adelante) quedan en 327 o más. En la 01 la mejor
+  solución usa una de las 4 primeras asignaciones y la diferencia con el líder está en los AGVs.
 
 ### Experimento: ¿conviene fijar la asignación óptima a máquinas? (instancia 01)
 La mejor solución de la 01 (326.66) se diferencia de la asignación **óptima a máquinas** (método
@@ -431,7 +435,8 @@ eso se repitió la idea en la 01, donde solo faltan 0.06 para el líder.
   semillas y más tiempo alrededor de esta solución no alcanzan: la del líder probablemente tiene
   otra estructura (otra asignación a máquinas o a AGVs) que no es vecina de la nuestra.
 - **Mini prueba en la 02 y la 03** (lo que funcionó en la 07: v5 desde la mejor guardada, 120 s,
-  1 núcleo): 405.59 y 476.44, sin cambio. Falta la corrida larga (2 rondas de 3500 s).
+  1 núcleo): 405.59 y 476.44, sin cambio. En la corrida larga de la 03 (2 rondas de 3500 s) y de
+  la 09 (2 rondas), tampoco hay cambio: 476.44 y 958.59.
 
 ## Mejores valores (11/11/2026)
 
@@ -447,7 +452,7 @@ IO1Lab el 11/11 a las 13:45 (el grupo GHI subió las 10 instancias entre 13:33 y
 | 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_05_io1lab.txt` | 590.33 (GHI) | falta 1.01 |
 | 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_06_io1lab.txt` | 741.33 (GHI) | falta 12.91 |
 | 07 | 901.93 | v5 (tabú, 1 ronda de 3500 s, semilla 71007, corrida de una amiga) partiendo de la 905.90 de la v4 | `mejores/instancia_07_io1lab.txt` | 877.81 (GHI) | falta 24.12 |
-| 08 | 1080.08 | v5 (tabú) | `mejores/instancia_08_io1lab.txt` | 1065.64 (GHI) | falta 14.44 |
+| 08 | 1079.92 | v6 (tabú + patadas ALNS, 1 ronda de 3500 s) partiendo de la 1080.08 de la v5 | `mejores/instancia_08_io1lab.txt` | 1065.64 (GHI) | falta 14.28 |
 | 09 | 958.59 | v5 (tabú, 6 rondas de 3500 s, corrida de un amigo) | `mejores/instancia_09_io1lab.txt` | 955.55 (GHI) | falta 3.04 |
 | 10 | 990.47 | v5 (tabú, 6 rondas de 3500 s, corrida de un amigo: 990.62) + 1 visita intermedia agregada por descenso | `mejores/instancia_10_io1lab.txt` | 969.80 (GHI) | falta 20.67 |
 
