@@ -13,6 +13,7 @@ solucion_7/   Solución 7: tabú con visitas + reoptimización exacta por ventan
 solucion_8/   Solución 8: secuencia de inserción de Yin y Hu (2026) + tabú de la v7
 solucion_9/   Solución 9: path relinking entre soluciones élite + tabú de la v7
 solucion_10/  Solución 10: multi-arranque desde las K mejores asignaciones a máquinas (Murty) + tabú
+solucion_11/  Solución 11: tabú de la v5 + vecindades de ruteo entre AGVs (CROSS, 2-opt*) y elección guiada por retrasos
 solucion_reglas_yampi/  Constructivo de reglas sin búsqueda (R1–R4 con excepciones S e Y), hecho por Yampi
   instancias/   Instancias convertidas a .txt
   resultados/   Soluciones generadas y archivos para IO1Lab
@@ -398,6 +399,38 @@ recorren a propósito asignaciones distintas (multi-arranque, Martí, Resende y 
   326.66: las asignaciones más lejanas (12 en adelante) quedan en 327 o más. En la 01 la mejor
   solución usa una de las 4 primeras asignaciones y la diferencia con el líder está en los AGVs.
 
+### Solución 11 — tabú + vecindades de ruteo entre AGVs + elección guiada por retrasos
+**Motivación (empírica).** Frente al líder (GHI) perdemos sobre todo en las instancias donde manda
+el transporte: 06 (−12.9), 07 (−24.1), 08 (−14.3) y 10 (−20.7), con gaps de 15–40 % sobre la cota
+de solo máquinas, contra 1–3 % en la 01–05. Ahí lo que mejora es la tabú (v5) y no el ALNS. Pero
+las vecindades de la v5 solo mueven **una parada o un viaje completo**: ninguna intercambia
+**tramos** de viajes entre los dos AGVs, que es lo más usado en ruteo de vehículos.
+
+**Método** (`transporte.jl`, sobre la tabú de la v5):
+- **Tres vecindades de ruteo** entre los AGVs:
+  - *CROSS-exchange* (Taillard et al., 1997): intercambia tramos de 1–3 viajes completos entre dos
+    AGVs (un tramo vacío equivale a mover un tramo).
+  - *2-opt\** (Potvin y Rousseau, 1995): intercambia las colas de las listas de viajes de los dos
+    AGVs, cortando en viajes cercanos en el tiempo.
+  - *Cruzar colas*: 2-opt\* entre dos viajes; el final de uno pasa al otro y viceversa.
+- **Elección guiada por retrasos** (idea de las vecindades de camino crítico, Nowicki y Smutnicki,
+  1996): en cada iteración se decodifica la solución actual y se mide, para cada lote, cuánto lo
+  retrasó el transporte: lo que su máquina esperó a que llegara (llegada − salida del anterior) y lo
+  que tardó desde que terminó hasta llegar a f (c − fin). La mitad de las veces la parada que se
+  mueve se elige con ruleta según ese retraso, en vez de al azar.
+- Todo lo demás es igual a la v5 (lista de candidatos, huellas, aspiración, reinicios).
+
+**Comparación justa con la v5** (desde la mejor guardada, 300 s, mismas semillas, 1 núcleo cada una):
+
+| Inst | Inicio | v5 sem 1 | v5 sem 2 | **v11 sem 1** | **v11 sem 2** |
+|---|---|---|---|---|---|
+| 06 | 754.24 | 754.24 | 754.24 | **753.09** | **751.30** |
+| 07 | 901.93 | 901.25 | 900.34 | **898.20** | **899.68** |
+
+- La v11 gana en las 4 comparaciones, con casi las mismas iteraciones (las vecindades nuevas no
+  son más caras). En la 06 la v5 no se mueve en 5 minutos; la v11 baja 1–3 puntos.
+- Nuevas mejores: **06 = 751.30** y **07 = 898.20**.
+
 ### Experimento: ¿conviene fijar la asignación óptima a máquinas? (instancia 01)
 La mejor solución de la 01 (326.66) se diferencia de la asignación **óptima a máquinas** (método
 húngaro para R‖ΣC, sin transporte) solo en dos lotes: el 9 y el 16 están intercambiados entre las
@@ -450,8 +483,8 @@ IO1Lab el 11/11 a las 13:45 (el grupo GHI subió las 10 instancias entre 13:33 y
 | 03 | 476.44 | v3/v4 | `solucion_4/resultados/instancia_03_io1lab.txt` | 473.04 (GHI) | falta 3.40 |
 | 04 | 525.92 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_04_io1lab.txt` | 521.42 (GHI) | falta 4.50 |
 | 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_05_io1lab.txt` | 590.33 (GHI) | falta 1.01 |
-| 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/instancia_06_io1lab.txt` | 741.33 (GHI) | falta 12.91 |
-| 07 | 901.93 | v5 (tabú, 1 ronda de 3500 s, semilla 71007, corrida de una amiga) partiendo de la 905.90 de la v4 | `mejores/instancia_07_io1lab.txt` | 877.81 (GHI) | falta 24.12 |
+| 06 | 751.30 | v11 (tabú + ruteo entre AGVs, 300 s, semilla 2) partiendo de la 754.24 de la v4 | `mejores/instancia_06_io1lab.txt` | 741.33 (GHI) | falta 9.97 |
+| 07 | 898.20 | v11 (tabú + ruteo entre AGVs, 300 s, semilla 1) partiendo de la 901.93 de la v5 | `mejores/instancia_07_io1lab.txt` | 877.81 (GHI) | falta 20.39 |
 | 08 | 1079.92 | v6 (tabú + patadas ALNS, 1 ronda de 3500 s) partiendo de la 1080.08 de la v5 | `mejores/instancia_08_io1lab.txt` | 1065.64 (GHI) | falta 14.28 |
 | 09 | 958.59 | v5 (tabú, 6 rondas de 3500 s, corrida de un amigo) | `mejores/instancia_09_io1lab.txt` | 955.55 (GHI) | falta 3.04 |
 | 10 | 990.47 | v5 (tabú, 6 rondas de 3500 s, corrida de un amigo: 990.62) + 1 visita intermedia agregada por descenso | `mejores/instancia_10_io1lab.txt` | 969.80 (GHI) | falta 20.67 |
@@ -493,6 +526,7 @@ Los números corresponden a la lista de referencias de abajo.
 | 8 | [8], [7], [9], [10] | [8]: secuencia de inserción, decodificación SIA, reparación A1 y operadores por partes · [7]: ruleta adaptativa · [9]–[10]: tabú para pulir |
 | 9 | [9], [10], [16] | [16]: path relinking entre soluciones élite · [9]–[10]: tabú para pulir las intermedias |
 | 10 | [1], [2], [9], [10], [17], [18] | [17]: K mejores asignaciones (Murty) · [1]–[2]: matriz de asignación R‖ΣC · [18]: multi-arranque · [9]–[10]: tabú solo sobre los AGVs y luego completa |
+| 11 | [9], [10], [19], [20], [21] | [9]–[10]: tabú de la v5 · [19]: CROSS-exchange · [20]: 2-opt\* · [21]: elegir los movimientos en la parte crítica (aquí, los lotes más retrasados por el transporte) |
 
 ## Referencias
 
@@ -515,6 +549,9 @@ Los números corresponden a la lista de referencias de abajo.
 16. Glover, F., Laguna, M. y Martí, R. (2000). Fundamentals of scatter search and path relinking. *Control and Cybernetics*, 29(3), 653–684.
 17. Murty, K. G. (1968). An algorithm for ranking all the assignments in order of increasing cost. *Operations Research*, 16(3), 682–687.
 18. Martí, R., Resende, M. G. C. y Ribeiro, C. C. (2013). Multi-start methods for combinatorial optimization. *European Journal of Operational Research*, 226(1), 1–8.
+19. Taillard, É., Badeau, P., Gendreau, M., Guertin, F. y Potvin, J.-Y. (1997). A tabu search heuristic for the vehicle routing problem with soft time windows. *Transportation Science*, 31(2), 170–186.
+20. Potvin, J.-Y. y Rousseau, J.-M. (1995). An exchange heuristic for routeing problems with time windows. *Journal of the Operational Research Society*, 46(12), 1433–1446.
+21. Nowicki, E. y Smutnicki, C. (1996). A fast taboo search algorithm for the job shop problem. *Management Science*, 42(6), 797–813.
 
 **Revisadas (problemas relacionados, no usadas directamente)**
 - Zheng, Y., Xiao, Y. y Seo, Y. (2014). A tabu search algorithm for simultaneous machine/AGV scheduling problem. *International Journal of Production Research*, 52(19), 5748–5763.

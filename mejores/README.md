@@ -9,13 +9,13 @@ Cada carpeta `solucion_X/resultados/` guarda lo que encontró **esa** versión.
 | 01 | 326.66 | v4 (ALNS con visitas) | `solucion_4/resultados/` |
 | 02 | 405.59 | v4 sin visitas, 10 rondas (corrida de la compañera) | `solucion_4/resultados/` |
 | 03 | 476.44 | v3 / v4 | `solucion_4/resultados/` |
-| 04 | 525.92 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/` |
-| 05 | 591.34 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/` |
-| 06 | 754.24 | v4 sin visitas (corrida de la compañera) | `solucion_4/resultados/` |
-| 07 | 901.93 | v5 (tabú: 1 ronda de 3500 s, semilla 71007, 105 448 iteraciones y 5 reinicios; corrida de una amiga), partiendo de la 905.90 de la v4 | `solucion_5/resultados/` |
-| 08 | 1079.92 | v6 (tabú + patadas ALNS, 1 ronda de 3500 s, semilla 61008) partiendo de la 1080.08 de la v5 | `solucion_6/resultados/` |
-| 09 | 958.59 | v5 (tabú, 6 rondas de 3500 s, corrida de un amigo) | `solucion_5/resultados/` |
-| 10 | 990.47 | v5 (tabú, 6 rondas de 3500 s, corrida de un amigo: 990.62) + 1 visita intermedia agregada por descenso | `solucion_5/resultados/` tiene la 990.62 |
+| 04 | 523.74 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
+| 05 | 590.90 | origen desconocido (zip `resultados_heuristica_local`, 12/11), partiendo de la 591.34 de la v4 | solo en `mejores/` |
+| 06 | 748.73 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
+| 07 | 892.68 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
+| 08 | 1071.07 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
+| 09 | 954.27 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
+| 10 | 972.05 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
 
 Todas se validaron con `validador.jl` (factibles) antes de subirlas.
 
