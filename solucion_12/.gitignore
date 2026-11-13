@@ -1,2 +1,4 @@
 v11_trabajo/
 estado/
+extra/*/*.jl
+extra/*/instancias/

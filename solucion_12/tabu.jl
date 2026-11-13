@@ -47,7 +47,10 @@ num_candidatos(ins) = clamp(num_lotes(ins), 30, 200)
 # Solución 11: se agregan las 3 vecindades de ruteo de transporte.jl
 # (posiciones 11–13; las 8–10 de visitas siguen sin usarse, como en la v5)
 const PESO_RUTEO = parse(Float64, get(ENV, "PESOS_RUTEO", "0.06"))
-const PESOS_TABU = [0.08, 0.08, 0.12, 0.22, 0.06, 0.32, 0.12, 0.0, 0.0, 0.0, PESO_RUTEO, PESO_RUTEO, PESO_RUTEO]
+# PESOS_VISITA (variable de entorno, 0 por defecto) activa las vecindades 8–10 de visitas
+# intermedias a o y f; se usa en la 01, cuya mejor solución tiene visitas a f.
+const PESO_VISITA = parse(Float64, get(ENV, "PESOS_VISITA", "0.0"))
+const PESOS_TABU = [0.08, 0.08, 0.12, 0.22, 0.06, 0.32, 0.12, PESO_VISITA, PESO_VISITA, PESO_VISITA, PESO_RUTEO, PESO_RUTEO, PESO_RUTEO]
 
 const SolTabu = Tuple{Vector{Vector{Int}},Plan,Float64}
 const Huella = NTuple{6,Int}

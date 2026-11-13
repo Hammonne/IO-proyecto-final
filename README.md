@@ -587,6 +587,43 @@ procesando desde 0, sin esperas, más la ruta mínima o→α_j + β_j→f de cad
      sus viajes (a diseñar).
   La 04, 05, 09 y 10 siguen con la corrida adaptativa de la v12.
 
+### Corrida de la noche con la v12 (12–13/11/2026)
+`solucion_12/seguir.sh` (22:30–05:54, 7 instancias, rondas de 3500 s; v12 mientras mejore, v11 tras
+2 rondas estancada, descanso tras 4) y `solucion_12/extra.sh`, que desde las 02:45 usó los núcleos
+liberados (3 rondas de 3500 s, cada tarea en su copia `solucion_12/extra/`).
+
+| Inst | Antes | Después | Rondas | Comentario |
+|---|---|---|---|---|
+| 04 | 523.69 | **523.22** | 6 | baja con la v12 en las rondas 1–2; la v11 solo saca 0.02 |
+| 05 | 590.66 | 590.66 | 4 | sin cambio |
+| 06 | 748.73 | **747.83** | 7 | la que más baja (−0.90), siempre con la v12 |
+| 07 | 891.79 | **891.72** | 4 | −0.07 |
+| 08 | 1070.84 | **1070.79** | 4 | −0.05 |
+| 09 | 952.85 | 952.85 | 4 | sin cambio |
+| 10 | 972.05 | **971.94** | 5 | −0.11 con la v12; la v11 no mejora |
+| 02 (extra) | 405.59 | 405.59 | 3 | primera vez con la v12, sin cambio |
+| 03 (extra) | 476.44 | 476.44 | 3 | primera vez con la v12, sin cambio |
+
+- **La v11 no destrabó ninguna instancia** en 9 rondas de instancia: todas las mejoras vienen de la
+  v12. Para la próxima, la alternancia con la v11 no aporta.
+- **02 y 03:** los reinicios chicos de la v12 tampoco salen del óptimo local (ver v7: óptimos
+  estrictos). Hace falta cambiar el criterio de búsqueda, no solo cómo se reinicia → v13.
+
+**07 desde cero (paso 1 del plan de arriba).** v12 con `cero`, 2 semillas, 3 rondas de 3500 s:
+
+| Semilla | Constructiva | Ronda 1 | Ronda 2 | Ronda 3 | Lotes en otra máquina que en la mejor |
+|---|---|---|---|---|---|
+| a | 995.54 | 914.08 | 913.97 | 913.97 | 66 de 125 |
+| b | 995.54 | 914.25 | 913.93 | **913.90** | 58 de 125 |
+
+- En 1 hora llega a ~914 y después se estanca, **22 por encima** de nuestra mejor (891.72), que
+  salió de muchas horas de ALNS + tabú.
+- Las dos semillas llegan a valores casi iguales con **asignaciones muy distintas** (58 lotes
+  cambian de máquina entre ellas): hay muchos valles de calidad parecida, y la tabú se queda en el
+  primero que encuentra.
+- Según el plan, como no llega cerca, el path relinking (paso 2) tiene poca expectativa (además la
+  v9 no mejoró en la 01 y la 03). Queda el paso 3: un movimiento de bloque.
+
 ### Experimento: ¿conviene fijar la asignación óptima a máquinas? (instancia 01)
 La mejor solución de la 01 (326.66) se diferencia de la asignación **óptima a máquinas** (método
 húngaro para R‖ΣC, sin transporte) solo en dos lotes: el 9 y el 16 están intercambiados entre las
@@ -627,7 +664,7 @@ eso se repitió la idea en la 01, donde solo faltan 0.06 para el líder.
   1 núcleo): 405.59 y 476.44, sin cambio. En la corrida larga de la 03 (2 rondas de 3500 s) y de
   la 09 (2 rondas), tampoco hay cambio: 476.44 y 958.59.
 
-## Mejores valores (12/11/2026)
+## Mejores valores (13/11/2026)
 
 Mejor solución factible de cada instancia (todas en `mejores/`). "Líder" es el mejor valor del
 ranking de IO1Lab el 11/11 a las 13:45 (grupo GHI).
@@ -637,13 +674,13 @@ ranking de IO1Lab el 11/11 a las 13:45 (grupo GHI).
 | 01 | 326.66 | v4 (ALNS) | 326.60 | falta 0.06 |
 | 02 | 405.59 | v4 (ALNS sin visitas, 10 rondas, corrida de la compañera) | 403.35 | falta 2.24 |
 | 03 | 476.44 | v3/v4 | 473.04 | falta 3.40 |
-| 04 | 523.69 | v12 (2 rondas de 3300 s, 12/11 tarde) | 521.42 | falta 2.27 |
+| 04 | 523.22 | v12 (corrida de la noche, 12–13/11) | 521.42 | falta 1.80 |
 | 05 | 590.66 | v12 (2 rondas de 3300 s, 12/11 tarde) | 590.33 | falta 0.33 |
-| 06 | 748.73 | v11 (8 rondas de 3500 s, 12/11) | 741.33 | falta 7.40 |
-| 07 | 891.79 | v12 (2 rondas de 3300 s, 12/11 tarde) | 877.81 | falta 13.98 |
-| 08 | 1070.84 | v12 (2 rondas de 3300 s, 12/11 tarde) | 1065.64 | falta 5.20 |
+| 06 | 747.83 | v12 (corrida de la noche, 12–13/11) | 741.33 | falta 6.50 |
+| 07 | 891.72 | v12 (corrida de la noche, 12–13/11) | 877.81 | falta 13.91 |
+| 08 | 1070.79 | v12 (corrida de la noche, 12–13/11) | 1065.64 | falta 5.15 |
 | 09 | 952.85 | v12 (2 rondas de 3300 s, 12/11 tarde) | 955.55 | **gana por 2.70** |
-| 10 | 972.05 | v11 (8 rondas de 3500 s, 12/11) | 969.80 | falta 2.25 |
+| 10 | 971.94 | v12 (corrida de la noche, 12–13/11) | 969.80 | falta 2.14 |
 
 La carpeta `mejores/` tiene la mejor solución de cada instancia (todas validadas como factibles). Cada `solucion_X/resultados/` guarda lo que encontró esa versión.
 
