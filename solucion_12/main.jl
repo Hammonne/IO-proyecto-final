@@ -1,5 +1,5 @@
 # ============================================================
-# main.jl — Solución 11: tabú de la v5 + vecindades de ruteo (CROSS, 2-opt*) y elección guiada por retrasos (transporte.jl)
+# main.jl — Solución 12: tabú de la v11 con tramos cortos y reinicios chicos (tabú iterada)
 # ============================================================
 # Uso:  julia main.jl instancias/instancia_01.txt [segundos] [semilla] [cero]
 # Método: búsqueda tabú con lista de candidatos (tabu.jl) durante todo el

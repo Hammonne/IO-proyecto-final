@@ -1,0 +1,19 @@
+instancia_09 inicial: 953.59
+  reinicio 1: mejor 953.52 -> parte de 1044.67
+  iter 20000: mejor 953.52  actual 956.31
+  reinicio 2: mejor 953.52 -> parte de 953.52
+  reinicio 3: mejor 953.5 -> parte de 953.5
+  iter 40000: mejor 953.44  actual 955.17
+  reinicio 4: mejor 953.44 -> parte de 1074.55
+  iter 60000: mejor 953.44  actual 984.15
+  reinicio 5: mejor 953.44 -> parte de 955.88
+  reinicio 6: mejor 953.44 -> parte de 969.02
+  iter 80000: mejor 953.44  actual 955.83
+  reinicio 7: mejor 953.44 -> parte de 953.44
+  iter 100000: mejor 953.44  actual 955.47
+  reinicio 8: mejor 953.44 -> parte de 953.44
+  reinicio 9: mejor 953.3 -> parte de 953.3
+  iter 120000: mejor 953.3  actual 954.36
+Tabú: 124596 iteraciones, 9 reinicios
+instancia_09 final: 953.3
+Guardada (factible y mejor que la anterior)

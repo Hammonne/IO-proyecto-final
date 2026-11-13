@@ -1,0 +1,49 @@
+instancia_09 inicial: 953.48
+  reinicio 1: mejor 953.48 -> parte de 953.48
+  reinicio 2: mejor 953.48 -> parte de 953.48
+  reinicio 3: mejor 953.48 -> parte de 953.48
+  reinicio 4: mejor 953.48 -> parte de 953.48
+  reinicio 5: mejor 953.48 -> parte de 953.48
+  reinicio 6: mejor 953.48 -> parte de 953.48
+  iter 20000: mejor 953.48  actual 956.06
+  reinicio 7: mejor 953.48 -> parte de 953.48
+  reinicio 8: mejor 953.48 -> parte de 953.48
+  reinicio 9: mejor 953.48 -> parte de 954.53
+  reinicio 10: mejor 953.48 -> parte de 953.48
+  reinicio 11: mejor 953.48 -> parte de 953.48
+  reinicio 12: mejor 953.48 -> parte de 953.48
+  reinicio 13: mejor 953.48 -> parte de 953.48
+  iter 40000: mejor 953.48  actual 955.03
+  reinicio 14: mejor 953.48 -> parte de 954.63
+  reinicio 15: mejor 953.48 -> parte de 954.23
+  reinicio 16: mejor 953.48 -> parte de 953.48
+  reinicio 17: mejor 953.48 -> parte de 953.48
+  reinicio 18: mejor 953.48 -> parte de 953.48
+  reinicio 19: mejor 953.48 -> parte de 953.97
+  reinicio 20: mejor 953.48 -> parte de 953.48
+  iter 60000: mejor 953.48  actual 953.48
+  reinicio 21: mejor 953.48 -> parte de 953.48
+  reinicio 22: mejor 953.47 -> parte de 954.1
+  reinicio 23: mejor 953.47 -> parte de 953.47
+  reinicio 24: mejor 953.47 -> parte de 953.84
+  reinicio 25: mejor 953.47 -> parte de 953.47
+  reinicio 26: mejor 953.47 -> parte de 957.95
+  iter 80000: mejor 953.47  actual 956.06
+  reinicio 27: mejor 953.47 -> parte de 954.07
+  reinicio 28: mejor 953.47 -> parte de 953.47
+  reinicio 29: mejor 953.47 -> parte de 953.47
+  reinicio 30: mejor 953.47 -> parte de 953.77
+  reinicio 31: mejor 953.47 -> parte de 957.17
+  reinicio 32: mejor 953.47 -> parte de 953.47
+  reinicio 33: mejor 953.47 -> parte de 955.36
+  iter 100000: mejor 953.47  actual 955.35
+  reinicio 34: mejor 953.47 -> parte de 953.47
+  reinicio 35: mejor 953.47 -> parte de 953.47
+  reinicio 36: mejor 953.47 -> parte de 953.47
+  reinicio 37: mejor 953.47 -> parte de 953.47
+  reinicio 38: mejor 953.47 -> parte de 953.47
+  reinicio 39: mejor 953.47 -> parte de 953.47
+  iter 120000: mejor 953.47  actual 956.09
+Tabú: 124220 iteraciones, 39 reinicios
+instancia_09 final: 953.47
+Guardada (factible y mejor que la anterior)

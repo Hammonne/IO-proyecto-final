@@ -18,19 +18,36 @@
 #   4. Criterio de aspiración: un movimiento tabú se acepta si da una
 #      nueva mejor solución.
 # Diversificación: si la mejor no mejora en una fracción ESTANCAMIENTO_TABU
-# del tiempo, se parte de la mejor con una perturbación aleatoria (3–8
-# movimientos) y se vacía la lista tabú.
+# del tiempo, se reinicia desde la mejor y se vacía la lista tabú.
+#
+# Solución 12 (tabú iterada: Misevicius, 2005; ILS: Lourenço et al., 2003).
+# En la corrida larga de la v11, 96 de 140 mejoras aparecieron en las
+# primeras 20 000 iteraciones tras un reinicio, y los reinicios que volvían
+# a la mejor sin saltar mejoraron el 40 % de las veces, frente al 6 % de los
+# saltos grandes (> 20). Por eso:
+#   1. ESTANCAMIENTO_TABU baja de 0.10 a 0.02: tramos de tabú cortos.
+#   2. Al reiniciar, la mitad de las veces se vuelve a la mejor tal cual
+#      (solo se vacía la lista tabú) y la otra mitad se aplica una
+#      perturbación CHICA: 1–2 movimientos con las vecindades de la tabú
+#      (PESOS_TABU, sin visitas) que no se alejen más de SALTO_MAX de la mejor.
+#      (La perturbación de busqueda_plan.jl tenía un bug: el `break` corta los
+#      dos bucles y aplicaba 1 movimiento de cualquier vecindad, con saltos
+#      de hasta +321.)
+#   3. Variante: PESOS_RUTEO (variable de entorno) da otro peso a las 3
+#      vecindades de ruteo de la v11 (0.06 por defecto).
 
 using Random
 
-const ESTANCAMIENTO_TABU, LIMPIEZA_TABU = 0.10, 1000
+const ESTANCAMIENTO_TABU, LIMPIEZA_TABU = 0.02, 1000
+const PROB_VOLVER, SALTO_MAX, MOVS_CHICOS = 0.5, 5.0, 1:2
 num_candidatos(ins) = clamp(num_lotes(ins), 30, 200)
 # Probabilidad de cada vecindad de la solución 3 al generar candidatos
 # (según los pesos que aprendió el recocido: intercambiar lotes y dividir
 # viaje son las que más mejoran)
 # Solución 11: se agregan las 3 vecindades de ruteo de transporte.jl
 # (posiciones 11–13; las 8–10 de visitas siguen sin usarse, como en la v5)
-const PESOS_TABU = [0.08, 0.08, 0.12, 0.22, 0.06, 0.32, 0.12, 0.0, 0.0, 0.0, 0.06, 0.06, 0.06]
+const PESO_RUTEO = parse(Float64, get(ENV, "PESOS_RUTEO", "0.06"))
+const PESOS_TABU = [0.08, 0.08, 0.12, 0.22, 0.06, 0.32, 0.12, 0.0, 0.0, 0.0, PESO_RUTEO, PESO_RUTEO, PESO_RUTEO]
 
 const SolTabu = Tuple{Vector{Vector{Int}},Plan,Float64}
 const Huella = NTuple{6,Int}
@@ -140,8 +157,25 @@ olvidar_vencidos!(st) = filter!(par -> par.second > st.iter, st.lista)
 
 # --- Diversificación -------------------------------------------------
 
+# Perturbación chica: 1–2 movimientos de las vecindades de la tabú; cada uno
+# se sortea hasta 20 veces hasta que sea factible y no se aleje más de
+# SALTO_MAX de la mejor. Si ninguno sirve, queda la mejor tal cual.
+function perturbar_chica(ins, mejor, rng)
+    sol = mejor
+    for _ in 1:rand(rng, MOVS_CHICOS)
+        for _ in 1:20
+            c = candidato(ins, sol, rng)
+            if isfinite(c[3]) && c[3] <= mejor[3] + SALTO_MAX
+                sol = c
+                break
+            end
+        end
+    end
+    return sol
+end
+
 function reiniciar_tabu!(st, ins, rng, mostrar)
-    st.actual = perturbar_plan(ins, st.mejor, rng)
+    st.actual = rand(rng) < PROB_VOLVER ? st.mejor : perturbar_chica(ins, st.mejor, rng)
     st.huella = huellas(st.actual[1], st.actual[2], num_lotes(ins))
     empty!(st.lista)
     st.t_mejora, st.reinicios = time(), st.reinicios + 1

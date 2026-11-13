@@ -14,6 +14,7 @@ solucion_8/   Solución 8: secuencia de inserción de Yin y Hu (2026) + tabú de
 solucion_9/   Solución 9: path relinking entre soluciones élite + tabú de la v7
 solucion_10/  Solución 10: multi-arranque desde las K mejores asignaciones a máquinas (Murty) + tabú
 solucion_11/  Solución 11: tabú de la v5 + vecindades de ruteo entre AGVs (CROSS, 2-opt*) y elección guiada por retrasos
+solucion_12/  Solución 12: tabú de la v11 con tramos cortos y reinicios chicos (tabú iterada) + corrida adaptativa v12/v11
 solucion_reglas_yampi/  Constructivo de reglas sin búsqueda (R1–R4 con excepciones S e Y), hecho por Yampi
   instancias/   Instancias convertidas a .txt
   resultados/   Soluciones generadas y archivos para IO1Lab
@@ -431,6 +432,23 @@ las vecindades de la v5 solo mueven **una parada o un viaje completo**: ninguna 
   son más caras). En la 06 la v5 no se mueve en 5 minutos; la v11 baja 1–3 puntos.
 - Nuevas mejores: **06 = 751.30** y **07 = 898.20**.
 
+**¿Por qué la v11 rinde más que la v5? (comparación del código, 12/11/2026)** La mecánica de la
+tabú es **idéntica** en las dos: misma memoria (huellas de cada lote: máquina y lote anterior; AGV
+y parada anterior de sus dos paradas), misma tenencia (2√n a 4√n), misma aspiración, misma lista de
+candidatos (tantos vecinos como lotes, entre 30 y 200) y mismos reinicios. Lo único que cambia es
+**qué vecinos se miran**:
+- **Movimientos más grandes, pero evaluados.** Las vecindades de la v5 mueven una parada o un viaje
+  entero. Un CROSS-exchange o un 2-opt\* equivale a 2–3 de esos movimientos seguidos cuyos pasos
+  intermedios suelen empeorar, un camino que la tabú rara vez toma. La v11 lo hace en un paso, y
+  solo si es el mejor candidato de la lista.
+- **La guía por retrasos afecta a todas las vecindades que mueven una parada** (`vecindades.jl`),
+  no solo a las nuevas: la mitad de los candidatos tocan los lotes que más atrasa el transporte.
+  Es la idea de camino crítico [21]: no gastar candidatos en lo que no causa el atraso.
+- **Costo casi nulo:** hace prácticamente las mismas iteraciones por segundo que la v5.
+- **Evidencia:** además de la tabla de arriba (4 de 4 comparaciones con los mismos 5 minutos), en
+  la 07 la v5 corrió 6 horas (6 rondas de 3500 s, corrida del amigo A) desde 901.93 y llegó a
+  899.77; la v11 llegó a 898.20 en 5 minutos desde el mismo punto.
+
 ### Corrida larga de la v11 y plan siguiente (12/11/2026)
 **Corrida:** v11 desde la mejor guardada, 8 rondas de 3500 s (semillas 70xxxx, una nueva por ronda),
 6 instancias en paralelo (1 núcleo cada una), del 11/11 22:08 al 12/11 05:56.
@@ -511,6 +529,64 @@ seguían mejorando en la ronda 8), 2 rondas de 30 min. Si la v12 gana, reemplaza
 cambia a la v6; si se estanca 4, descansa). No se cambia el tamaño de la lista de candidatos ni se
 agrandan las perturbaciones: los datos no lo apoyan.
 
+### Solución 12 — tabú iterada: tramos cortos y reinicios chicos
+Es la v11 con los 3 cambios del plan de arriba (`solucion_12/tabu.jl`): reinicio tras el 2 % del
+tiempo sin mejorar; al reiniciar, la mitad de las veces vuelve a la mejor tal cual y la otra mitad
+aplica 1–2 movimientos de la tabú que no se alejen más de 5 de la mejor (esto reemplaza la
+perturbación con el bug); `PESOS_RUTEO` cambia el peso de las vecindades de ruteo.
+
+**Prueba** (`prueba_v12.sh`): v11, v12 y v12r (ruteo 0.12) desde `mejores/`, mismas semillas, 2 rondas
+de 1800 s; cada variante sigue desde lo suyo en la ronda 2.
+
+| Inst | Partida | v11 R1 | v12 R1 | v12r R1 | v11 R2 | v12 R2 | v12r R2 |
+|---|---|---|---|---|---|---|---|
+| 07 | 892.68 | 892.50 | **892.15** | **892.15** | 892.50 | 891.99 | **891.97** |
+| 09 | 954.27 | 953.59 | **953.48** | 953.89 | **953.30** | 953.47 | 953.76 |
+| Reinicios por ronda | | 8–9 | 39–45 | 39–45 | | | |
+
+- **Resultado mixto:** la v12 gana en la 07 (0.5 menos que la v11 en 1 hora) y la v11 en la 09 (0.17
+  menos). Con 2 instancias y 1 semilla no hay un ganador claro; las dos mejoran en todas las
+  corridas. Más peso al ruteo (v12r) no muestra un efecto consistente.
+- **Nuevas mejores:** **07 = 891.97** (v12r) y **09 = 953.30** (v11).
+- **Corrida corta de la tarde** (v12, 5 instancias, 2 rondas de 3300 s): bajan las 5: 04 = 523.69,
+  05 = 590.66, 07 = 891.79, 08 = 1070.84, 09 = 952.85 (unos 45 reinicios por ronda).
+- **Decisión para la corrida larga** (`solucion_12/seguir.sh`): como ninguna domina, se alternan. Cada
+  instancia corre la v12 mientras mejore; si se estanca 2 rondas pasa a la v11 (con su dinámica de
+  reinicios cada 10 %) y si mejora vuelve a la v12; tras 4 rondas sin mejora descansa. Reemplaza al
+  plan B anterior (v6), cuyas patadas grandes los datos ponen en duda.
+
+### Diagnóstico: ¿dónde está la diferencia en la 04–10? (12/11/2026)
+Para cada mejor solución se separa su valor en tres partes (`solucion_12/diagnostico.jl`; uso:
+`julia diagnostico.jl "$PWD" 04 05 06` desde `solucion_12/`; misma fórmula que la cota de la v4): **cota sin congestión** = ΣC de las máquinas
+procesando desde 0, sin esperas, más la ruta mínima o→α_j + β_j→f de cada lote, dividido por n.
+
+| Inst | Nuestra | Cota óptima (húngaro) | Cota de nuestra asignación | Se paga en asignación | Se paga en congestión | Líder | Líder − cota |
+|---|---|---|---|---|---|---|---|
+| 04 | 523.69 | 509.55 | 515.27 | 5.72 | 8.42 | 521.42 | 11.87 |
+| 05 | 590.66 | 578.28 | 580.77 | 2.49 | 9.89 | 590.33 | 12.05 |
+| 06 | 748.73 | 647.24 | 720.70 | 73.46 | 28.03 | 741.33 | 94.09 |
+| 07 | 891.79 | 711.02 | 826.28 | 115.26 | 65.50 | 877.81 | 166.79 |
+| 08 | 1070.84 | 767.44 | 943.97 | 176.53 | 126.88 | 1065.64 | 298.20 |
+| 09 | 952.85 | 828.50 | 916.35 | 87.85 | 36.50 | 955.55 | 127.05 |
+| 10 | 972.05 | 847.10 | 925.07 | 77.97 | 46.97 | 969.80 | 122.70 |
+
+- **04 y 05:** casi todo es congestión (8–10) y la asignación está cerca de la óptima. El líder
+  está en la misma zona; ahí basta con seguir puliendo (05: falta 0.33).
+- **06–10:** nuestras soluciones se alejan **mucho** de la asignación óptima a máquinas (73–177
+  por lote) para que 2 AGVs alcancen a atender: es un compromiso, no un error (como en la 01, la
+  asignación óptima a máquinas sola es peor con transporte). El líder también está a 94–298 de la
+  cota, así que el compromiso es inevitable; la pregunta es **qué asignación** usa.
+- **Implicación:** la tabú mueve lotes de a uno, y cada cambio de máquina obliga a rehacer viajes;
+  en la 07 la asignación es 115 peor que la óptima y la tabú solo la ajusta en el margen. Una
+  asignación **distinta en bloque** (otra forma de repartir los lotes entre máquinas) es difícil
+  de alcanzar con movimientos de un lote. Por eso, para la 06–08 se plantea:
+  1. **Multi-arranque desde cero con la v12** (argumento `cero`, 2–3 semillas, 1 h en la 07):
+     ¿llega a otra asignación con valor parecido o mejor? Es barato y usa código existente.
+  2. **Si llega cerca pero con otra estructura:** path relinking (v9) entre esa y nuestra mejor.
+  3. **Si no:** un movimiento de bloque que reasigne varios lotes de una máquina a otra y rehaga
+     sus viajes (a diseñar).
+  La 04, 05, 09 y 10 siguen con la corrida adaptativa de la v12.
+
 ### Experimento: ¿conviene fijar la asignación óptima a máquinas? (instancia 01)
 La mejor solución de la 01 (326.66) se diferencia de la asignación **óptima a máquinas** (método
 húngaro para R‖ΣC, sin transporte) solo en dos lotes: el 9 y el 16 están intercambiados entre las
@@ -561,12 +637,12 @@ ranking de IO1Lab el 11/11 a las 13:45 (grupo GHI).
 | 01 | 326.66 | v4 (ALNS) | 326.60 | falta 0.06 |
 | 02 | 405.59 | v4 (ALNS sin visitas, 10 rondas, corrida de la compañera) | 403.35 | falta 2.24 |
 | 03 | 476.44 | v3/v4 | 473.04 | falta 3.40 |
-| 04 | 523.74 | v11 (8 rondas de 3500 s, 12/11) | 521.42 | falta 2.32 |
-| 05 | 590.90 | origen desconocido (zip `resultados_heuristica_local`, 12/11), desde la 591.34 de la v4 | 590.33 | falta 0.57 |
+| 04 | 523.69 | v12 (2 rondas de 3300 s, 12/11 tarde) | 521.42 | falta 2.27 |
+| 05 | 590.66 | v12 (2 rondas de 3300 s, 12/11 tarde) | 590.33 | falta 0.33 |
 | 06 | 748.73 | v11 (8 rondas de 3500 s, 12/11) | 741.33 | falta 7.40 |
-| 07 | 892.68 | v11 (8 rondas de 3500 s, 12/11) | 877.81 | falta 14.87 |
-| 08 | 1071.07 | v11 (8 rondas de 3500 s, 12/11) | 1065.64 | falta 5.43 |
-| 09 | 954.27 | v11 (8 rondas de 3500 s, 12/11) | 955.55 | **gana por 1.28** |
+| 07 | 891.79 | v12 (2 rondas de 3300 s, 12/11 tarde) | 877.81 | falta 13.98 |
+| 08 | 1070.84 | v12 (2 rondas de 3300 s, 12/11 tarde) | 1065.64 | falta 5.20 |
+| 09 | 952.85 | v12 (2 rondas de 3300 s, 12/11 tarde) | 955.55 | **gana por 2.70** |
 | 10 | 972.05 | v11 (8 rondas de 3500 s, 12/11) | 969.80 | falta 2.25 |
 
 La carpeta `mejores/` tiene la mejor solución de cada instancia (todas validadas como factibles). Cada `solucion_X/resultados/` guarda lo que encontró esa versión.

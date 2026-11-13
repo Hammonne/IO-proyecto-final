@@ -1,0 +1,29 @@
+instancia_07 inicial: 892.68
+  iter 20000: mejor 892.51  actual 897.62
+  reinicio 1: mejor 892.51 -> parte de 896.66
+  iter 40000: mejor 892.51  actual 896.19
+  iter 60000: mejor 892.51  actual 897.07
+  reinicio 2: mejor 892.51 -> parte de 892.98
+  iter 80000: mejor 892.51  actual 898.33
+  reinicio 3: mejor 892.51 -> parte de 901.44
+  iter 100000: mejor 892.51  actual 899.6
+  iter 120000: mejor 892.51  actual 897.07
+  reinicio 4: mejor 892.51 -> parte de 893.95
+  iter 140000: mejor 892.51  actual 897.56
+  iter 160000: mejor 892.51  actual 899.29
+  reinicio 5: mejor 892.51 -> parte de 892.51
+  iter 180000: mejor 892.5  actual 899.61
+  iter 200000: mejor 892.5  actual 898.82
+  reinicio 6: mejor 892.5 -> parte de 928.66
+  iter 220000: mejor 892.5  actual 902.1
+  reinicio 7: mejor 892.5 -> parte de 907.02
+  iter 240000: mejor 892.5  actual 896.08
+  iter 260000: mejor 892.5  actual 898.48
+  reinicio 8: mejor 892.5 -> parte de 977.93
+  iter 280000: mejor 892.5  actual 905.34
+  iter 300000: mejor 892.5  actual 900.34
+  reinicio 9: mejor 892.5 -> parte de 948.45
+  iter 320000: mejor 892.5  actual 899.0
+Tabú: 334638 iteraciones, 9 reinicios
+instancia_07 final: 892.5
+Guardada (factible y mejor que la anterior)

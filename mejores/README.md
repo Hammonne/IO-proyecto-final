@@ -9,12 +9,12 @@ Cada carpeta `solucion_X/resultados/` guarda lo que encontró **esa** versión.
 | 01 | 326.66 | v4 (ALNS con visitas) | `solucion_4/resultados/` |
 | 02 | 405.59 | v4 sin visitas, 10 rondas (corrida de la compañera) | `solucion_4/resultados/` |
 | 03 | 476.44 | v3 / v4 | `solucion_4/resultados/` |
-| 04 | 523.74 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
-| 05 | 590.90 | origen desconocido (zip `resultados_heuristica_local`, 12/11), partiendo de la 591.34 de la v4 | solo en `mejores/` |
+| 04 | 523.69 | v12 (2 rondas de 3300 s, 12/11 tarde) | `solucion_12/resultados/` |
+| 05 | 590.66 | v12 (2 rondas de 3300 s, 12/11 tarde) | `solucion_12/resultados/` |
 | 06 | 748.73 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
-| 07 | 892.68 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
-| 08 | 1071.07 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
-| 09 | 954.27 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
+| 07 | 891.79 | v12 (2 rondas de 3300 s, 12/11 tarde) | `solucion_12/resultados/` |
+| 08 | 1070.84 | v12 (2 rondas de 3300 s, 12/11 tarde) | `solucion_12/resultados/` |
+| 09 | 952.85 | v12 (2 rondas de 3300 s, 12/11 tarde) | `solucion_12/resultados/` |
 | 10 | 972.05 | v11 (tabú + ruteo entre AGVs, 8 rondas de 3500 s, semillas 70xxxx, 12/11) | `solucion_11/resultados/` |
 
 Todas se validaron con `validador.jl` (factibles) antes de subirlas.

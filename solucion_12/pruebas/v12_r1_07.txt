@@ -1,0 +1,65 @@
+instancia_07 inicial: 892.68
+  reinicio 1: mejor 892.51 -> parte de 892.51
+  reinicio 2: mejor 892.51 -> parte de 892.51
+  reinicio 3: mejor 892.51 -> parte de 892.51
+  iter 20000: mejor 892.51  actual 892.51
+  reinicio 4: mejor 892.51 -> parte de 892.51
+  reinicio 5: mejor 892.51 -> parte de 892.51
+  iter 40000: mejor 892.51  actual 897.02
+  reinicio 6: mejor 892.51 -> parte de 892.51
+  reinicio 7: mejor 892.51 -> parte de 893.0
+  reinicio 8: mejor 892.51 -> parte de 892.51
+  iter 60000: mejor 892.43  actual 897.98
+  reinicio 9: mejor 892.43 -> parte de 892.43
+  reinicio 10: mejor 892.41 -> parte de 897.0
+  reinicio 11: mejor 892.41 -> parte de 892.41
+  iter 80000: mejor 892.37  actual 894.82
+  reinicio 12: mejor 892.37 -> parte de 892.37
+  reinicio 13: mejor 892.34 -> parte de 892.34
+  reinicio 14: mejor 892.33 -> parte de 892.33
+  iter 100000: mejor 892.33  actual 895.58
+  reinicio 15: mejor 892.33 -> parte de 892.33
+  reinicio 16: mejor 892.33 -> parte de 892.33
+  reinicio 17: mejor 892.33 -> parte de 893.15
+  iter 120000: mejor 892.33  actual 898.7
+  reinicio 18: mejor 892.33 -> parte de 892.33
+  reinicio 19: mejor 892.27 -> parte de 892.27
+  reinicio 20: mejor 892.23 -> parte de 892.23
+  iter 140000: mejor 892.23  actual 895.38
+  reinicio 21: mejor 892.23 -> parte de 892.23
+  reinicio 22: mejor 892.15 -> parte de 892.15
+  reinicio 23: mejor 892.15 -> parte de 892.15
+  iter 160000: mejor 892.15  actual 892.15
+  reinicio 24: mejor 892.15 -> parte de 892.15
+  reinicio 25: mejor 892.15 -> parte de 892.15
+  iter 180000: mejor 892.15  actual 898.67
+  reinicio 26: mejor 892.15 -> parte de 892.15
+  reinicio 27: mejor 892.15 -> parte de 892.15
+  reinicio 28: mejor 892.15 -> parte de 896.71
+  iter 200000: mejor 892.15  actual 898.55
+  reinicio 29: mejor 892.15 -> parte de 892.15
+  reinicio 30: mejor 892.15 -> parte de 892.15
+  reinicio 31: mejor 892.15 -> parte de 892.15
+  iter 220000: mejor 892.15  actual 897.8
+  reinicio 32: mejor 892.15 -> parte de 892.15
+  reinicio 33: mejor 892.15 -> parte de 892.15
+  reinicio 34: mejor 892.15 -> parte de 892.15
+  iter 240000: mejor 892.15  actual 896.37
+  reinicio 35: mejor 892.15 -> parte de 892.15
+  reinicio 36: mejor 892.15 -> parte de 895.18
+  reinicio 37: mejor 892.15 -> parte de 892.15
+  iter 260000: mejor 892.15  actual 895.53
+  reinicio 38: mejor 892.15 -> parte de 892.15
+  reinicio 39: mejor 892.15 -> parte de 892.15
+  reinicio 40: mejor 892.15 -> parte de 892.15
+  iter 280000: mejor 892.15  actual 898.47
+  reinicio 41: mejor 892.15 -> parte de 892.15
+  reinicio 42: mejor 892.15 -> parte de 892.15
+  reinicio 43: mejor 892.15 -> parte de 892.15
+  iter 300000: mejor 892.15  actual 892.15
+  reinicio 44: mejor 892.15 -> parte de 892.15
+  reinicio 45: mejor 892.15 -> parte de 892.15
+  iter 320000: mejor 892.15  actual 897.95
+Tabú: 336307 iteraciones, 45 reinicios
+instancia_07 final: 892.15
+Guardada (factible y mejor que la anterior)
