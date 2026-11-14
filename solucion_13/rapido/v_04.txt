@@ -1,0 +1,88 @@
+instancia_04 inicial: 523.2
+  reinicio 1: mejor 523.2 -> parte de 525.1
+  iter 20000: mejor 523.2  actual 525.62
+  reinicio 2: mejor 523.2 -> parte de 523.2
+  iter 40000: mejor 523.2  actual 526.79
+  reinicio 3: mejor 523.2 -> parte de 523.2
+  reinicio 4: mejor 523.2 -> parte de 523.2
+  iter 60000: mejor 523.2  actual 526.59
+  reinicio 5: mejor 523.2 -> parte de 523.2
+  iter 80000: mejor 523.2  actual 527.49
+  reinicio 6: mejor 523.2 -> parte de 523.2
+  iter 100000: mejor 523.18  actual 526.85
+  reinicio 7: mejor 523.18 -> parte de 523.18
+  iter 120000: mejor 523.18  actual 527.62
+  reinicio 8: mejor 523.18 -> parte de 523.18
+  reinicio 9: mejor 523.18 -> parte de 523.97
+  iter 140000: mejor 523.18  actual 529.31
+  reinicio 10: mejor 523.18 -> parte de 523.18
+  iter 160000: mejor 523.18  actual 526.7
+  reinicio 11: mejor 523.18 -> parte de 523.18
+  iter 180000: mejor 523.17  actual 527.38
+  reinicio 12: mejor 523.17 -> parte de 523.17
+  reinicio 13: mejor 523.17 -> parte de 523.17
+  iter 200000: mejor 523.17  actual 523.17
+  reinicio 14: mejor 523.17 -> parte de 523.17
+  iter 220000: mejor 523.17  actual 526.46
+  reinicio 15: mejor 523.17 -> parte de 523.17
+  iter 240000: mejor 523.17  actual 528.93
+  reinicio 16: mejor 523.17 -> parte de 523.17
+  iter 260000: mejor 523.17  actual 527.46
+  reinicio 17: mejor 523.17 -> parte de 523.17
+  reinicio 18: mejor 523.17 -> parte de 523.17
+  iter 280000: mejor 523.17  actual 523.17
+  reinicio 19: mejor 523.17 -> parte de 523.17
+  iter 300000: mejor 523.17  actual 526.8
+  reinicio 20: mejor 523.17 -> parte de 523.17
+  iter 320000: mejor 523.17  actual 528.26
+  reinicio 21: mejor 523.17 -> parte de 523.17
+  iter 340000: mejor 523.17  actual 526.63
+  reinicio 22: mejor 523.17 -> parte de 523.17
+  reinicio 23: mejor 523.17 -> parte de 523.17
+  iter 360000: mejor 523.17  actual 523.17
+  reinicio 24: mejor 523.17 -> parte de 523.17
+  iter 380000: mejor 523.17  actual 527.78
+  reinicio 25: mejor 523.17 -> parte de 524.15
+  iter 400000: mejor 523.17  actual 529.72
+  reinicio 26: mejor 523.17 -> parte de 523.17
+  iter 420000: mejor 523.17  actual 526.9
+  reinicio 27: mejor 523.17 -> parte de 523.17
+  reinicio 28: mejor 523.17 -> parte de 523.17
+  iter 440000: mejor 523.17  actual 523.17
+  reinicio 29: mejor 523.17 -> parte de 523.17
+  iter 460000: mejor 523.17  actual 526.39
+  reinicio 30: mejor 523.17 -> parte de 523.17
+  iter 480000: mejor 523.17  actual 525.27
+  reinicio 31: mejor 523.17 -> parte de 523.17
+  iter 500000: mejor 523.17  actual 526.94
+  reinicio 32: mejor 523.17 -> parte de 523.17
+  reinicio 33: mejor 523.17 -> parte de 523.17
+  iter 520000: mejor 523.17  actual 523.17
+  reinicio 34: mejor 523.17 -> parte de 523.93
+  iter 540000: mejor 523.17  actual 527.3
+  reinicio 35: mejor 523.17 -> parte de 524.47
+  iter 560000: mejor 523.17  actual 528.05
+  reinicio 36: mejor 523.17 -> parte de 523.66
+  iter 580000: mejor 523.17  actual 527.77
+  reinicio 37: mejor 523.17 -> parte de 523.17
+  reinicio 38: mejor 523.17 -> parte de 523.17
+  iter 600000: mejor 523.17  actual 523.17
+  reinicio 39: mejor 523.17 -> parte de 523.17
+  iter 620000: mejor 523.17  actual 525.88
+  reinicio 40: mejor 523.17 -> parte de 523.17
+  iter 640000: mejor 523.17  actual 525.49
+  reinicio 41: mejor 523.17 -> parte de 523.93
+  iter 660000: mejor 523.17  actual 525.84
+  reinicio 42: mejor 523.17 -> parte de 523.17
+  reinicio 43: mejor 523.17 -> parte de 523.17
+  iter 680000: mejor 523.17  actual 523.17
+  reinicio 44: mejor 523.17 -> parte de 523.51
+  iter 700000: mejor 523.17  actual 526.81
+  reinicio 45: mejor 523.17 -> parte de 523.17
+  iter 720000: mejor 523.17  actual 529.73
+  reinicio 46: mejor 523.17 -> parte de 523.17
+  iter 740000: mejor 523.17  actual 528.8
+  iter 760000: mejor 523.17  actual 528.41
+Tabú: 768742 iteraciones, 46 reinicios
+instancia_04 final: 523.17
+Guardada (factible y mejor que la anterior)

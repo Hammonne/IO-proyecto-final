@@ -1,0 +1,6 @@
+pruebas_bloques/*/*.jl
+pruebas_bloques/*/instancias/
+rapido/*/*.jl
+rapido/*/instancias/
+pruebas_transporte/*/*.jl
+pruebas_transporte/*/instancias/

@@ -1,0 +1,76 @@
+instancia_05 inicial: 590.66
+  reinicio 1: mejor 590.66 -> parte de 590.66
+  iter 20000: mejor 590.66  actual 595.28
+  reinicio 2: mejor 590.66 -> parte de 590.66
+  reinicio 3: mejor 590.66 -> parte de 590.66
+  iter 40000: mejor 590.66  actual 597.24
+  reinicio 4: mejor 590.66 -> parte de 590.93
+  reinicio 5: mejor 590.66 -> parte de 590.66
+  iter 60000: mejor 590.66  actual 596.77
+  reinicio 6: mejor 590.66 -> parte de 595.23
+  reinicio 7: mejor 590.66 -> parte de 590.66
+  iter 80000: mejor 590.66  actual 595.72
+  reinicio 8: mejor 590.66 -> parte de 591.55
+  reinicio 9: mejor 590.66 -> parte de 590.66
+  iter 100000: mejor 590.66  actual 590.66
+  reinicio 10: mejor 590.66 -> parte de 590.66
+  iter 120000: mejor 590.66  actual 594.55
+  reinicio 11: mejor 590.66 -> parte de 590.66
+  reinicio 12: mejor 590.66 -> parte de 590.66
+  iter 140000: mejor 590.66  actual 596.09
+  reinicio 13: mejor 590.66 -> parte de 590.66
+  reinicio 14: mejor 590.66 -> parte de 590.66
+  iter 160000: mejor 590.66  actual 594.87
+  reinicio 15: mejor 590.66 -> parte de 590.66
+  reinicio 16: mejor 590.66 -> parte de 590.66
+  iter 180000: mejor 590.66  actual 595.54
+  reinicio 17: mejor 590.66 -> parte de 590.66
+  reinicio 18: mejor 590.66 -> parte de 590.66
+  iter 200000: mejor 590.66  actual 590.66
+  reinicio 19: mejor 590.66 -> parte de 590.66
+  iter 220000: mejor 590.66  actual 593.99
+  reinicio 20: mejor 590.66 -> parte de 591.78
+  reinicio 21: mejor 590.66 -> parte de 594.41
+  iter 240000: mejor 590.66  actual 595.72
+  reinicio 22: mejor 590.66 -> parte de 590.66
+  reinicio 23: mejor 590.66 -> parte de 590.66
+  iter 260000: mejor 590.66  actual 594.48
+  reinicio 24: mejor 590.66 -> parte de 591.17
+  reinicio 25: mejor 590.66 -> parte de 592.0
+  iter 280000: mejor 590.66  actual 594.04
+  reinicio 26: mejor 590.66 -> parte de 590.66
+  reinicio 27: mejor 590.66 -> parte de 590.66
+  iter 300000: mejor 590.66  actual 590.66
+  reinicio 28: mejor 590.66 -> parte de 591.15
+  iter 320000: mejor 590.66  actual 596.2
+  reinicio 29: mejor 590.66 -> parte de 591.4
+  reinicio 30: mejor 590.66 -> parte de 591.61
+  iter 340000: mejor 590.66  actual 594.4
+  reinicio 31: mejor 590.66 -> parte de 590.66
+  reinicio 32: mejor 590.66 -> parte de 591.17
+  iter 360000: mejor 590.66  actual 598.02
+  reinicio 33: mejor 590.66 -> parte de 590.66
+  reinicio 34: mejor 590.66 -> parte de 592.72
+  iter 380000: mejor 590.66  actual 592.72
+  reinicio 35: mejor 590.66 -> parte de 591.8
+  iter 400000: mejor 590.66  actual 596.22
+  reinicio 36: mejor 590.66 -> parte de 590.66
+  reinicio 37: mejor 590.66 -> parte de 590.66
+  iter 420000: mejor 590.66  actual 595.66
+  reinicio 38: mejor 590.66 -> parte de 590.82
+  reinicio 39: mejor 590.66 -> parte de 590.66
+  iter 440000: mejor 590.66  actual 594.52
+  reinicio 40: mejor 590.66 -> parte de 590.66
+  reinicio 41: mejor 590.66 -> parte de 590.66
+  iter 460000: mejor 590.66  actual 590.66
+  reinicio 42: mejor 590.66 -> parte de 590.66
+  iter 480000: mejor 590.66  actual 597.22
+  reinicio 43: mejor 590.66 -> parte de 590.66
+  reinicio 44: mejor 590.66 -> parte de 590.66
+  iter 500000: mejor 590.66  actual 597.22
+  reinicio 45: mejor 590.66 -> parte de 590.66
+  iter 520000: mejor 590.66  actual 594.68
+  iter 540000: mejor 590.66  actual 596.98
+Tabú: 546738 iteraciones, 45 reinicios
+instancia_05 final: 590.66
+No mejora la solución guardada

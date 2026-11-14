@@ -1,0 +1,92 @@
+instancia_04 inicial: 523.2
+  reinicio 1: mejor 523.2 -> parte de 523.2
+  iter 20000: mejor 523.2  actual 527.93
+  reinicio 2: mejor 523.2 -> parte de 523.2
+  iter 40000: mejor 523.2  actual 530.01
+  reinicio 3: mejor 523.2 -> parte de 523.2
+  iter 60000: mejor 523.2  actual 529.8
+  reinicio 4: mejor 523.2 -> parte de 523.2
+  iter 80000: mejor 523.2  actual 527.14
+  reinicio 5: mejor 523.2 -> parte de 523.48
+  iter 100000: mejor 523.2  actual 528.8
+  reinicio 6: mejor 523.2 -> parte de 523.2
+  reinicio 7: mejor 523.2 -> parte de 523.2
+  iter 120000: mejor 523.2  actual 526.25
+  reinicio 8: mejor 523.2 -> parte de 523.2
+  iter 140000: mejor 523.2  actual 526.43
+  reinicio 9: mejor 523.2 -> parte de 523.2
+  iter 160000: mejor 523.2  actual 527.56
+  reinicio 10: mejor 523.2 -> parte de 525.87
+  iter 180000: mejor 523.2  actual 528.06
+  reinicio 11: mejor 523.2 -> parte de 523.2
+  iter 200000: mejor 523.2  actual 527.41
+  reinicio 12: mejor 523.2 -> parte de 523.2
+  iter 220000: mejor 523.2  actual 529.73
+  reinicio 13: mejor 523.2 -> parte de 523.2
+  reinicio 14: mejor 523.2 -> parte de 524.25
+  iter 240000: mejor 523.2  actual 527.39
+  reinicio 15: mejor 523.2 -> parte de 526.24
+  iter 260000: mejor 523.2  actual 528.83
+  reinicio 16: mejor 523.2 -> parte de 523.2
+  iter 280000: mejor 523.2  actual 526.55
+  reinicio 17: mejor 523.2 -> parte de 523.2
+  iter 300000: mejor 523.2  actual 531.2
+  reinicio 18: mejor 523.2 -> parte de 523.35
+  iter 320000: mejor 523.2  actual 529.68
+  reinicio 19: mejor 523.2 -> parte de 523.2
+  iter 340000: mejor 523.2  actual 529.2
+  reinicio 20: mejor 523.2 -> parte de 523.2
+  reinicio 21: mejor 523.2 -> parte de 523.2
+  iter 360000: mejor 523.2  actual 523.2
+  reinicio 22: mejor 523.2 -> parte de 523.2
+  iter 380000: mejor 523.2  actual 526.97
+  reinicio 23: mejor 523.2 -> parte de 523.2
+  iter 400000: mejor 523.17  actual 529.61
+  reinicio 24: mejor 523.17 -> parte de 523.17
+  iter 420000: mejor 523.17  actual 528.76
+  reinicio 25: mejor 523.17 -> parte de 523.17
+  iter 440000: mejor 523.17  actual 528.68
+  reinicio 26: mejor 523.17 -> parte de 524.77
+  iter 460000: mejor 523.17  actual 527.92
+  reinicio 27: mejor 523.17 -> parte de 523.17
+  iter 480000: mejor 523.17  actual 529.76
+  reinicio 28: mejor 523.17 -> parte de 523.17
+  reinicio 29: mejor 523.17 -> parte de 523.17
+  iter 500000: mejor 523.17  actual 523.17
+  reinicio 30: mejor 523.17 -> parte de 523.17
+  iter 520000: mejor 523.17  actual 526.19
+  reinicio 31: mejor 523.17 -> parte de 524.84
+  iter 540000: mejor 523.17  actual 526.73
+  reinicio 32: mejor 523.17 -> parte de 523.17
+  iter 560000: mejor 523.17  actual 527.84
+  reinicio 33: mejor 523.17 -> parte de 523.94
+  iter 580000: mejor 523.17  actual 527.91
+  reinicio 34: mejor 523.17 -> parte de 526.61
+  iter 600000: mejor 523.17  actual 528.4
+  reinicio 35: mejor 523.17 -> parte de 523.17
+  iter 620000: mejor 523.17  actual 530.52
+  reinicio 36: mejor 523.17 -> parte de 523.17
+  iter 640000: mejor 523.17  actual 529.6
+  reinicio 37: mejor 523.17 -> parte de 523.17
+  reinicio 38: mejor 523.17 -> parte de 523.17
+  iter 660000: mejor 523.17  actual 528.09
+  reinicio 39: mejor 523.17 -> parte de 523.17
+  iter 680000: mejor 523.17  actual 529.34
+  reinicio 40: mejor 523.17 -> parte de 523.17
+  iter 700000: mejor 523.17  actual 529.86
+  reinicio 41: mejor 523.17 -> parte de 524.43
+  iter 720000: mejor 523.17  actual 529.91
+  reinicio 42: mejor 523.17 -> parte de 523.17
+  iter 740000: mejor 523.17  actual 528.47
+  reinicio 43: mejor 523.17 -> parte de 523.17
+  iter 760000: mejor 523.17  actual 527.69
+  reinicio 44: mejor 523.17 -> parte de 523.17
+  iter 780000: mejor 523.17  actual 528.31
+  reinicio 45: mejor 523.17 -> parte de 523.17
+  reinicio 46: mejor 523.17 -> parte de 523.97
+  iter 800000: mejor 523.17  actual 523.97
+  iter 820000: mejor 523.17  actual 526.84
+  iter 840000: mejor 523.17  actual 528.65
+Tabú: 846792 iteraciones, 46 reinicios
+instancia_04 final: 523.17
+Guardada (factible y mejor que la anterior)

@@ -1,0 +1,49 @@
+instancia_10 inicial: 971.84
+  reinicio 1: mejor 971.84 -> parte de 971.84
+  reinicio 2: mejor 971.84 -> parte de 971.84
+  reinicio 3: mejor 971.84 -> parte de 973.25
+  reinicio 4: mejor 971.84 -> parte de 972.14
+  reinicio 5: mejor 971.84 -> parte de 971.84
+  reinicio 6: mejor 971.84 -> parte de 971.84
+  reinicio 7: mejor 971.84 -> parte de 971.84
+  reinicio 8: mejor 971.84 -> parte de 972.2
+  reinicio 9: mejor 971.84 -> parte de 971.84
+  reinicio 10: mejor 971.84 -> parte de 972.93
+  iter 20000: mejor 971.84  actual 972.93
+  reinicio 11: mejor 971.84 -> parte de 971.84
+  reinicio 12: mejor 971.84 -> parte de 971.84
+  reinicio 13: mejor 971.84 -> parte de 972.07
+  reinicio 14: mejor 971.84 -> parte de 974.55
+  reinicio 15: mejor 971.84 -> parte de 971.84
+  reinicio 16: mejor 971.84 -> parte de 971.84
+  reinicio 17: mejor 971.84 -> parte de 971.84
+  reinicio 18: mejor 971.84 -> parte de 973.88
+  reinicio 19: mejor 971.84 -> parte de 971.84
+  reinicio 20: mejor 971.84 -> parte de 975.6
+  iter 40000: mejor 971.84  actual 975.6
+  reinicio 21: mejor 971.84 -> parte de 971.84
+  reinicio 22: mejor 971.84 -> parte de 971.84
+  reinicio 23: mejor 971.84 -> parte de 971.84
+  reinicio 24: mejor 971.84 -> parte de 971.84
+  reinicio 25: mejor 971.84 -> parte de 972.21
+  reinicio 26: mejor 971.84 -> parte de 971.84
+  reinicio 27: mejor 971.8 -> parte de 971.8
+  reinicio 28: mejor 971.8 -> parte de 974.78
+  reinicio 29: mejor 971.8 -> parte de 971.8
+  reinicio 30: mejor 971.8 -> parte de 972.07
+  iter 60000: mejor 971.8  actual 972.07
+  reinicio 31: mejor 971.8 -> parte de 971.8
+  reinicio 32: mejor 971.8 -> parte de 971.8
+  reinicio 33: mejor 971.8 -> parte de 971.8
+  reinicio 34: mejor 971.8 -> parte de 971.8
+  reinicio 35: mejor 971.8 -> parte de 974.1
+  reinicio 36: mejor 971.8 -> parte de 971.8
+  reinicio 37: mejor 971.8 -> parte de 971.8
+  reinicio 38: mejor 971.8 -> parte de 972.6
+  reinicio 39: mejor 971.8 -> parte de 971.8
+  reinicio 40: mejor 971.8 -> parte de 971.8
+  iter 80000: mejor 971.8  actual 971.8
+  reinicio 41: mejor 971.8 -> parte de 971.8
+Tabú: 86898 iteraciones, 41 reinicios
+instancia_10 final: 971.8
+Guardada (factible y mejor que la anterior)

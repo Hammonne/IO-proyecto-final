@@ -15,10 +15,29 @@ solucion_9/   Solución 9: path relinking entre soluciones élite + tabú de la 
 solucion_10/  Solución 10: multi-arranque desde las K mejores asignaciones a máquinas (Murty) + tabú
 solucion_11/  Solución 11: tabú de la v5 + vecindades de ruteo entre AGVs (CROSS, 2-opt*) y elección guiada por retrasos
 solucion_12/  Solución 12: tabú de la v11 con tramos cortos y reinicios chicos (tabú iterada) + corrida adaptativa v12/v11
+solucion_13/  Solución 13: tabú iterada de la v12 + búsqueda local guiada (penalización de rasgos)
+solucion_temporal/  Prototipo: despacho por ciclos con asignación en línea + guion de parámetros (ver solucion_temporal/propuesta.md)
 solucion_reglas_yampi/  Constructivo de reglas sin búsqueda (R1–R4 con excepciones S e Y), hecho por Yampi
   instancias/   Instancias convertidas a .txt
   resultados/   Soluciones generadas y archivos para IO1Lab
 ```
+
+## Nuestro método central
+
+**Búsqueda tabú iterada sobre un plan explícito de viajes de AGVs** (solución 12, código en `solucion_13/`),
+con una solución inicial de **despacho por ciclos** (`solucion_temporal/`).
+
+1. **Representación:** secuencia de lotes por máquina + lista de viajes de cada AGV (paradas de entrega y
+   retiro, y visitas a o y f). Un decodificador (camino más largo) calcula los tiempos lo antes posible.
+2. **Solución inicial:** cada AGV, al quedar libre, elige el ciclo (qué máquinas abastece y qué retira) que
+   más rinde por segundo de AGV; el lote se asigna a su máquina al cargarlo en o. Los parámetros de esa
+   regla se ajustan por tramos con una búsqueda local corta (el "guion").
+3. **Búsqueda local:** tabú con lista de candidatos y vecindades de máquinas (mover/intercambiar lotes),
+   de viajes (mover/intercambiar paradas, fusionar/dividir viajes, visitas) y de ruteo entre AGVs
+   (CROSS, 2-opt\*); tramos cortos con reinicio desde la mejor y perturbación pequeña (tabú iterada).
+
+Las versiones 1–11 y 13 son la historia de cómo se llegó a este método. La 01–03 se alcanzaron con el
+ALNS de la v4, y la tabú no las mejoró. Detalle en "¿Cuál es el mejor modelo?" y "Mejores valores".
 
 ## Cómo correr
 
@@ -624,6 +643,191 @@ liberados (3 rondas de 3500 s, cada tarea en su copia `solucion_12/extra/`).
 - Según el plan, como no llega cerca, el path relinking (paso 2) tiene poca expectativa (además la
   v9 no mejoró en la 01 y la 03). Queda el paso 3: un movimiento de bloque.
 
+### Corrida de día (13/11/2026): v12 en 06/04/10, v12 con visitas en la 01 y prueba de la v13
+3 rondas de 3500 s (`solucion_12/dia.sh`) y 2 rondas de 3500 s para la v13 (`solucion_13/prueba_v13.sh`),
+6 núcleos.
+
+| Inst | Método | Antes | Después |
+|---|---|---|---|
+| 04 | v12 | 523.22 | **523.20** |
+| 06 | v12 | 747.83 | 747.83 |
+| 10 | v12 | 971.94 | **971.84** |
+| 01 | v12 con visitas (`PESOS_VISITA=0.04`) | 326.66 | 326.66 |
+| 03 | v13 | 476.44 | 476.44 |
+| 02 | v13 | 405.59 | 405.59 |
+
+- **01 con visitas:** la mejor de la 01 tiene 3 viajes que pasan por f a mitad de camino, pero desde
+  la v5 la tabú tenía en 0 el peso de las vecindades de visitas (insertar/quitar visita, unir por o).
+  `solucion_12/tabu.jl` ahora acepta `PESOS_VISITA` (0 por defecto). Con visitas y las vecindades de
+  ruteo de la v11 (nunca usadas en la 01), 3 h y 3 semillas: sin cambio.
+
+**Corrida rápida (13/11, 15:46–16:16, 8 núcleos, `solucion_13/rapido.sh`).** Variantes en paralelo
+sobre las más cercanas al líder: v12 con ruteo 0.12, v13 con `GLS_ALFA=0.1` y v12 con visitas.
+
+| Inst | v12 ruteo 0.12 | v13 α = 0.1 | v12 con visitas |
+|---|---|---|---|
+| 05 (590.66) | 590.66 | 590.66 | 590.66 |
+| 04 (523.20) | 523.17 | 523.18 | **523.17** (523.168) |
+| 10 (971.84) | **971.80** | 971.84 | — |
+
+Nota: el decodificador (`plan.jl`) ya da los tiempos óptimos para los órdenes fijados (camino más largo,
+todo lo antes posible); con un objetivo regular como ΣC no hay nada que ganar retrasando a los AGVs.
+Las mejoras solo pueden venir de cambiar los órdenes.
+
+### Solución 13 — tabú iterada + búsqueda local guiada
+**Motivación.** Las mejores de la 01–03 son óptimos locales estrictos (v7), y ni la tabú con muchas
+semillas (v5), ni la v12, ni el ALNS, ni el path relinking las mueven: la búsqueda siempre vuelve a la
+misma estructura. La búsqueda local guiada (*Guided Local Search*, Voudouris y Tsang, 1999 [24])
+cambia el paisaje en vez de los movimientos.
+
+**Método** (`solucion_13/tabu.jl`, sobre la v12):
+- **Rasgos:** los 6 componentes de la huella de cada lote (máquina, lote anterior en la máquina, AGV y
+  parada anterior del abastecimiento y del retiro).
+- **Costo aumentado:** h = g + λ·Σ p_f. La tabú elige el mejor vecino según h; la mejor solución y la
+  aspiración usan el valor real g.
+- **Penalización:** en cada reinicio (2 % del tiempo sin mejorar) se suma 1 a los K = máx(2, 0.1·n)
+  rasgos de la mejor con mayor utilidad c_f / (1 + p_f), con c_f = retraso por transporte del lote, y
+  se vuelve a la mejor. λ = 0.2 · g / (6n), como en el paper (α por el costo medio por rasgo).
+  Variables de entorno `GLS_ALFA` y `GLS_FRAC`.
+
+**Resultado (honesto): no mejora.** En la 03 (3.4 millones de iteraciones y 47 reinicios por ronda) la
+búsqueda sí se aleja: la solución actual tiene mediana 504 (máximo 531) frente a 476.44 de la mejor;
+o sea, recorre otras estructuras, y ninguna es mejor. Lo mismo en la 02 (7.2 millones de iteraciones).
+
+**Vecindades de bloque** (`solucion_13/bloques.jl`, prueba `bloques.sh`, 13/11 17:25–18:23, 7 núcleos,
+`GLS_ALFA=0`). Para la 06–08, donde el diagnóstico muestra que la asignación a máquinas está lejos de la
+óptima y la tabú mueve lotes de a uno:
+- **mover_bloque:** 2–5 lotes seguidos pasan, en el mismo orden, a otra máquina (Or-opt, Or 1976, entre
+  máquinas). **intercambiar_bloques:** un bloque de 1–4 lotes se cambia por otro de otra máquina
+  (CROSS-exchange, Taillard et al. 1997 [19], aplicado a máquinas).
+- Las paradas de los AGVs quedan donde estaban (`PROB_QUEDAN`) o se reinsertan como viajes propios
+  junto al viaje del lote vecino. Sin esa reparación solo 29 de cada 2000 vecinos eran factibles en la
+  07 (bloqueos entre AGVs y máquinas); con ella, unos 210, pero el 10 % mejor empeora +15 a +23.
+- Variantes: bloques dentro de la tabú con peso 0.06 y 0.15 (`PESO_BLOQUE`), y patada de bloque (hasta
+  +30) en el 50 % de los reinicios (`PATADA_BLOQUE`), contra la v12 sola como control.
+
+| Inst | Control (v12) | Bloques 0.06 | Bloques 0.15 | Patada |
+|---|---|---|---|---|
+| 07 (891.72) | 891.72 | 891.72 | 891.72 | 891.72 |
+| 08 (1070.79) | 1070.79 | 1070.79 | — | 1070.79 |
+
+- **Inconcluso:** en 1 hora ninguna mejora, ni el control. Se dejan como una variante más en la corrida
+  larga (`solucion_13/portafolio.sh`, que rota base / ruteo / visitas / bloques por ronda).
+- En el mismo rato, la v12 con ruteo 0.12 bajó la **10 a 971.76**.
+
+**Corrida por portafolio** (`solucion_13/portafolio.sh`, 13/11 18:25 – 14/11 05:07, 7 núcleos, 6 rondas de
+3500 s). v12 (código de la v13 con `GLS_ALFA=0`) en la 04–10; en cada ronda cada instancia usa otra variante
+(base, ruteo 0.12, visitas 0.04, bloques 0.06 + patada 0.3) y otra semilla.
+
+| Inst | Antes | Después | Mejoras (ronda: variante) |
+|---|---|---|---|
+| 04 | 523.17 | **522.93** | 2: visitas |
+| 05 | 590.66 | 590.66 | — |
+| 06 | 747.83 | **747.69** | 2: base · 4: visitas |
+| 07 | 891.72 | **891.68** | 2: ruteo |
+| 08 | 1070.79 | **1070.77** | 2: visitas |
+| 09 | 952.85 | **952.33** | 1: visitas · 2: bloques · 5: visitas |
+| 10 | 971.76 | **971.63** | 2: base · 4: visitas · 5: bloques |
+
+- **Visitas es la variante que más mejoras dio** (6 de 13), aunque en la v5–v12 su peso estaba en 0: las
+  visitas intermedias a o y f no solo sirven en la 01. Los bloques dieron 2 mejoras chicas (09, 10).
+- Rotar variantes da más que repetir la misma: con la misma cantidad de CPU, la corrida adaptativa
+  v12/v11 de la noche anterior dejó de mejorar en la ronda 3–4.
+- La 05 no se movió con ninguna variante.
+
+### Análisis de la 08: los AGVs son el cuello de botella (14/11/2026)
+El 13/11 a las 19:09 el líder (GHI) subió las 10 instancias en 2 minutos y bajó mucho donde manda el
+transporte (08: 1065.64 → 1032.81; 10: 969.80 → 953.52). Para entender dónde se pierde, se midió cómo
+usan su tiempo los AGVs en nuestra mejor 08 (1070.77; n = 155, 10 máquinas, K = 4, C = 2):
+
+| Tiempo de los AGVs | s | % |
+|---|---|---|
+| Viajando con carga | 5031 | 63.4 |
+| Viajando vacíos | 2822 | 35.6 |
+| Esperando | 83 | 1.0 |
+
+- Los AGVs están ocupados el **99 %** del tiempo, y las máquinas esperan abastecimiento 2199 s en total
+  (13 % del tiempo de proceso). El transporte es el cuello de botella.
+- De lo vacío, **2345 s son vueltas f → o** (67 de 35 s). Con C = 2 el ciclo típico es: cargar 2 en o →
+  dejarlos → recoger 2 terminados → f → volver vacío. Las visitas intermedias a o (pasar por o con
+  terminados a bordo) ahorran parte de esas vueltas, lo que explica por qué la variante de visitas fue
+  la que más mejoró en el portafolio.
+- **No todas las máquinas cuestan lo mismo en transporte:** o → α + β → f es 48–49 s en las máquinas 1–4,
+  9 y 10, 66 s en la 5 y la 7, y **81 s en la 6 y la 8** (cerca de f, lejos de o). Les asignamos 57 de
+  155 lotes a las máquinas 5–8.
+- **Hipótesis:** con AGVs saturados, cada segundo de AGV retrasa a los lotes que vienen después, así que
+  la asignación debería pesar el transporte mucho más de lo que lo pesa la del húngaro (que lo cuenta
+  una vez por lote). Nuestras búsquedas parten de asignaciones pensadas para las máquinas y la tabú las
+  ajusta de a un lote.
+
+**Experimento** (`solucion_13/asig_transporte.jl`, `transporte08.sh`): asignación inicial por el método
+húngaro con costo k·p_ij + BETA·(τ[o, α_j] + τ[β_j, f]) (variable `ASIG_BETA`, con `cero`), y v12 con
+visitas desde ahí. Con BETA = 40 las máquinas 6 y 8 bajan de 13 y 21 a 4 y 8 lotes; con BETA = 80 quedan
+vacías. Se comparan BETA = 0 (control), 20, 40 y 80, 1 hora cada una.
+
+**Resultado del experimento con BETA (08, 1 h, BETA = 40):** 1223.94 → **1115.22**, muy peor que 1070.77.
+Con el despacho de la v2, la asignación previa no ayuda: la diferencia la hace la regla de despacho (ver
+la propuesta de abajo). Se cancelaron las corridas con BETA = 0, 20 y 80.
+
+### Despacho por ciclos con asignación en línea (14/11/2026)
+Detalle completo en `solucion_temporal/propuesta.md` y prototipo en `solucion_temporal/`.
+- **Diagnóstico:** en nuestra 08 los viajes ya tienen buena forma (69 de 87 son 2 entregas + 2 retiros),
+  pero las máquinas baratas para los AGVs (1–4, 9, 10; ciclo de 87 s por par de lotes) esperan
+  abastecimiento 1154 s mientras los AGVs atienden a las caras (5–8; 119 s). Faltan AGVs: entregan ~8
+  lotes por 100 s y las máquinas piden ~9.5, así que alguna máquina debe esperar; conviene que sean las
+  lejanas.
+- **Constructivo por ciclos:** decide el AGV. Cuando queda libre elige el ciclo (qué entregar y qué
+  recoger) que más rinde por segundo de AGV, y el lote se asigna a su máquina recién al cargarlo en o.
+- **Búsqueda en dos niveles:** primero sobre un "guion" de parámetros del constructivo por tramos
+  (cambiar el tramo final reconstruye toda la cola), luego la tabú v12 con visitas sobre el plan.
+- **Resultados del prototipo** (≈ 4 min, 1 núcleo, desde cero): **08 = 1029.04** (antes 1070.77; líder 1032.81)
+  y **07 = 886.73** (antes 891.68). En 3 minutos la 10 (985.74) y la 06 (756.11) aún no alcanzan las nuestras.
+  Ambas soluciones pasan nuestro validador y están en `mejores/`.
+- Siguiente paso: correr el método completo (guion 120 s + tabú 3300 s) en la 10, 07, 06 y 08 con otras
+  semillas (`solucion_temporal/corrida.sh`, `cola.sh`).
+- **Primera corrida completa:** 10, semilla 7: guion 1020.72 → tabú (55 min)
+  **963.16**, mejor que la nuestra (971.09). Validada y copiada a `mejores/`. Confirma el método en
+  una instancia donde el prototipo no había llegado.
+- **Cuatro corridas más** (guion 120 s + tabú 3300 s, 14/11 11:00–11:56), todas validadas:
+
+  | Inst | Semilla | Guion | Tabú | Antes |
+  |---|---|---|---|---|
+  | 08 | 14 | 1046.98 | **1028.85** | 1029.04 |
+  | 07 | 11 | 916.32 | **882.23** | 886.73 |
+  | 07 | 12 | 916.13 | 885.30 | 886.73 |
+  | 06 | 13 | 789.02 | 748.44 | 747.50 (no mejora) |
+
+  Las mejoras se copiaron a `mejores/`. En la 07 y la 08 dos semillas distintas llegan a valores
+  parecidos, así que el método es estable. En la 06 queda cerca pero no mejora.
+
+#### Revisión de confiabilidad (14/11/2026)
+- **Soluciones:** 07, 08 y 10 se revalidaron con el validador de `solucion_12/`, código independiente
+  del prototipo: 0 errores, todos los lotes, mismos valores (886.7333, 1029.03956, 963.16253).
+- **Diagnóstico recalculado** (`analiza` sobre la 08): coinciden los ciclos de 87/87/105/119 s, las esperas
+  de las cercanas en la nueva (12, 19, 12, 19, 27, 27 = 116 s) y de las lejanas (2805 s), los 36 lotes
+  en lejanas, el inicio medio (866.6), el makespan (2035) y los cuartiles. En la vieja 08 (1070.79,
+  la del último commit) las cercanas esperan 1096 s (la propuesta midió 1154 s sobre la 1070.77; es otro archivo).
+- **Matiz:** la "demanda de 9.5 lotes por 100 s" usa los tiempos de proceso de la solución
+  (≈ 106 s por lote); con la máquina más rápida de cada lote serían ≈ 11. La conclusión (faltan AGVs)
+  se mantiene en ambos casos.
+- **Fuentes:** las 7 existen y los datos (autores, revista, volumen, páginas) son correctos. Uso de cada una:
+  - Egbelu y Tanchoco [25] (despacho iniciado por el vehículo) y Storer, Wu y Vaccari [26] (buscar en el
+    espacio de la heurística) son base directa del método.
+  - Smith [27] (WSPT) es una **analogía**: el teorema es para una máquina, no para ciclos de AGV.
+  - Bilge y Ulusoy [5] y Savelsbergh y Sol [29] son contexto.
+  - Ruiz y Stützle (voraz iterado) y Duin y Voß [28] (piloto) son mejoras **no implementadas**.
+- **Aporte propio** (no está en ningún paper): la fórmula de puntaje del ciclo, la asignación
+  del lote al cargarlo en o y la combinación de los tres niveles.
+- **Pendiente para el informe:** el prototipo tiene funciones de 30–40 líneas (hay que partirlas en ≤ 15
+  líneas) y hay una sola semilla por instancia en las pruebas del prototipo.
+
+**Conclusión para la 01–03.** Ya se probaron: más semillas, vecinos más lejanos (ventanas exactas,
+destrucción del 30 %, path relinking), aceptar peores (recocido, tabú), otras asignaciones (Murty),
+visitas y cambiar el paisaje (búsqueda local guiada). Todo vuelve a 326.66, 405.59 y 476.44. Es
+probable que estén muy cerca de lo mejor que alcanzan estas representaciones; la diferencia con el
+líder (0.06, 2.24 y 3.40) podría necesitar un modelo distinto (por ejemplo, otra forma de decidir los
+tiempos de los AGVs), no otra metaheurística sobre el mismo.
+
 ### Experimento: ¿conviene fijar la asignación óptima a máquinas? (instancia 01)
 La mejor solución de la 01 (326.66) se diferencia de la asignación **óptima a máquinas** (método
 húngaro para R‖ΣC, sin transporte) solo en dos lotes: el 9 y el 16 están intercambiados entre las
@@ -664,23 +868,54 @@ eso se repitió la idea en la 01, donde solo faltan 0.06 para el líder.
   1 núcleo): 405.59 y 476.44, sin cambio. En la corrida larga de la 03 (2 rondas de 3500 s) y de
   la 09 (2 rondas), tampoco hay cambio: 476.44 y 958.59.
 
-## Mejores valores (13/11/2026)
+## ¿Cuál es el mejor modelo? (resumen al 13/11/2026)
+
+**El mejor modelo en general es la solución 12** (`solucion_12/`): búsqueda tabú iterada sobre el plan
+explícito de viajes de los AGVs, con las vecindades de ruteo entre AGVs de la v11. Encontró la mejor
+solución actual de **7 de las 10 instancias** (04–10), y es la única versión que siguió mejorando en
+las últimas corridas.
+
+| Pieza | De qué versión viene | Por qué está |
+|---|---|---|
+| Representación: máquina y orden de cada lote + lista explícita de viajes por AGV, con visitas a o y f | v3 (+ visitas de la v4) | Decide las dos capas a la vez; el decodificador da los tiempos óptimos (camino más largo) para esos órdenes |
+| Solución de partida | v2 (húngaro + despacho) → v4 (ALNS) | El ALNS lleva rápido a una buena zona; en la 01–03 sus soluciones siguen siendo las mejores |
+| Búsqueda tabú con lista de candidatos, huellas por lote y aspiración | v5 | Salió de óptimos locales donde el ALNS se estancaba (07: 905.90 → 901.93) |
+| Vecindades de ruteo (CROSS, 2-opt\*, cruzar colas) y elección guiada por retrasos | v11 | Las que más mejoraron en la 04–10 |
+| Tramos cortos (2 %) y reinicios chicos desde la mejor | v12 | Los logs mostraron que las mejoras llegan justo después de reiniciar, y que los saltos grandes no sirven |
+
+**Por grupo de instancias:**
+- **01–03 (chicas):** las mejores siguen siendo las del **ALNS (v4)**. Desde ahí nada las mejoró:
+  tabú con muchas semillas, ventanas exactas (v7), secuencia (v8), path relinking (v9), Murty (v10),
+  v12 con visitas y búsqueda local guiada (v13).
+- **04–10 (medianas y grandes):** **v12**, partiendo de la mejor guardada. Variantes útiles por
+  variable de entorno: `PESOS_RUTEO=0.12` (10) y `PESOS_VISITA=0.04` (04).
+
+**Lo que no funcionó** (para no repetirlo): patadas grandes de destrucción/reparación (v6), la
+representación por secuencia (v8), path relinking (v9), alternar con la v11 (0 mejoras en 9 rondas de
+instancia) y la búsqueda local guiada (v13: explora otras estructuras, pero ninguna es mejor).
+
+**Cómo correrlo:** `cd solucion_12 && julia main.jl instancias/instancia_07.txt 3500 <semilla>` (parte de
+`resultados/` y solo guarda si mejora). Para varias instancias en paralelo, `seguir.sh` o `dia.sh`.
+
+## Mejores valores (14/11/2026)
 
 Mejor solución factible de cada instancia (todas en `mejores/`). "Líder" es el mejor valor del
-ranking de IO1Lab el 11/11 a las 13:45 (grupo GHI).
+ranking de IO1Lab el 13/11 a las 19:11 (grupo GHI; ese día subió las 10 instancias en 2 minutos, con
+saltos grandes en la 08 (−32.8) y la 10 (−16.3)). Recordatorio del enunciado: el puntaje va por **terciles**
+entre todos los grupos (0.6 / 0.3 / 0 por instancia), no por el primer lugar.
 
-| Inst | Mejor valor | Método | Líder IO1Lab (11/11) | Estado |
+| Inst | Mejor valor | Método | Líder IO1Lab (13/11) | Estado |
 |---|---|---|---|---|
 | 01 | 326.66 | v4 (ALNS) | 326.60 | falta 0.06 |
 | 02 | 405.59 | v4 (ALNS sin visitas, 10 rondas, corrida de la compañera) | 403.35 | falta 2.24 |
-| 03 | 476.44 | v3/v4 | 473.04 | falta 3.40 |
-| 04 | 523.22 | v12 (corrida de la noche, 12–13/11) | 521.42 | falta 1.80 |
-| 05 | 590.66 | v12 (2 rondas de 3300 s, 12/11 tarde) | 590.33 | falta 0.33 |
-| 06 | 747.83 | v12 (corrida de la noche, 12–13/11) | 741.33 | falta 6.50 |
-| 07 | 891.72 | v12 (corrida de la noche, 12–13/11) | 877.81 | falta 13.91 |
-| 08 | 1070.79 | v12 (corrida de la noche, 12–13/11) | 1065.64 | falta 5.15 |
-| 09 | 952.85 | v12 (2 rondas de 3300 s, 12/11 tarde) | 955.55 | **gana por 2.70** |
-| 10 | 971.94 | v12 (corrida de la noche, 12–13/11) | 969.80 | falta 2.14 |
+| 03 | 476.44 | v3/v4 | 469.44 | falta 7.00 |
+| 04 | 522.88 | v12 (portafolio, 14/11) | 520.47 | falta 2.41 |
+| 05 | 590.66 | v12 (2 rondas de 3300 s, 12/11 tarde) | 588.60 | falta 2.06 |
+| 06 | 747.50 | v12 con bloques (portafolio, 14/11) | 739.48 | falta 8.02 |
+| 07 | 882.23 | despacho por ciclos + guion + tabú v12 (semilla 11) | 875.49 | falta 6.74 |
+| 08 | 1028.85 | despacho por ciclos + guion + tabú v12 (semilla 14) | 1032.81 | **gana por 3.96** |
+| 09 | 952.28 | v12 con visitas (portafolio, 14/11) | 951.60 | falta 0.68 |
+| 10 | 963.16 | despacho por ciclos + guion + tabú 55 min (semilla 7) | 953.52 | falta 9.64 |
 
 La carpeta `mejores/` tiene la mejor solución de cada instancia (todas validadas como factibles). Cada `solucion_X/resultados/` guarda lo que encontró esa versión.
 
@@ -720,7 +955,9 @@ Los números corresponden a la lista de referencias de abajo.
 | 9 | [9], [10], [16] | [16]: path relinking entre soluciones élite · [9]–[10]: tabú para pulir las intermedias |
 | 10 | [1], [2], [9], [10], [17], [18] | [17]: K mejores asignaciones (Murty) · [1]–[2]: matriz de asignación R‖ΣC · [18]: multi-arranque · [9]–[10]: tabú solo sobre los AGVs y luego completa |
 | 11 | [9], [10], [19], [20], [21] | [9]–[10]: tabú de la v5 · [19]: CROSS-exchange · [20]: 2-opt\* · [21]: elegir los movimientos en la parte crítica (aquí, los lotes más retrasados por el transporte) |
-| 12 (plan) | [4], [13], [22], [23] | [22]: tabú iterada (tramos cortos + reinicio desde la mejor) · [4]: perturbaciones pequeñas de ILS · [13], [23]: vecindades grandes evaluadas dentro de la búsqueda (no saltos al azar) |
+| 12 | [4], [13], [22], [23] | [22]: tabú iterada (tramos cortos + reinicio desde la mejor) · [4]: perturbaciones pequeñas de ILS · [13], [23]: vecindades grandes evaluadas dentro de la búsqueda (no saltos al azar) |
+| 13 | [9], [10], [22], [24] | [24]: búsqueda local guiada (rasgos, utilidad, costo aumentado, λ) · [22]: tabú iterada de la v12 · [9]–[10]: tabú |
+| Despacho por ciclos | [5], [25]–[29] | [25]: despacho iniciado por el vehículo · [26]: búsqueda sobre los parámetros de la heurística (guion) · [27]: orden WSPT (analogía) · [28]: método piloto (pendiente) · [29], [5]: contexto de recogida y entrega y del problema integrado · voraz iterado de Ruiz y Stützle (pendiente) |
 
 ## Referencias
 
@@ -748,6 +985,12 @@ Los números corresponden a la lista de referencias de abajo.
 21. Nowicki, E. y Smutnicki, C. (1996). A fast taboo search algorithm for the job shop problem. *Management Science*, 42(6), 797–813.
 22. Misevicius, A. (2005). A tabu search algorithm for the quadratic assignment problem. *Computational Optimization and Applications*, 30(1), 95–111.
 23. Mladenović, N. y Hansen, P. (1997). Variable neighborhood search. *Computers & Operations Research*, 24(11), 1097–1100.
+24. Voudouris, C. y Tsang, E. (1999). Guided local search and its application to the traveling salesman problem. *European Journal of Operational Research*, 113(2), 469–499.
+25. Egbelu, P. J. y Tanchoco, J. M. A. (1984). Characterization of automatic guided vehicle dispatching rules. *International Journal of Production Research*, 22(3), 359–374.
+26. Storer, R. H., Wu, S. D. y Vaccari, R. (1992). New search spaces for sequencing problems with application to job shop scheduling. *Management Science*, 38(10), 1495–1509.
+27. Smith, W. E. (1956). Various optimizers for single-stage production. *Naval Research Logistics Quarterly*, 3(1–2), 59–66.
+28. Duin, C. y Voß, S. (1999). The pilot method: a strategy for heuristic repetition with application to the Steiner problem in graphs. *Networks*, 34(3), 181–191.
+29. Savelsbergh, M. W. P. y Sol, M. (1995). The general pickup and delivery problem. *Transportation Science*, 29(1), 17–29.
 
 **Revisadas (problemas relacionados, no usadas directamente)**
 - Zheng, Y., Xiao, Y. y Seo, Y. (2014). A tabu search algorithm for simultaneous machine/AGV scheduling problem. *International Journal of Production Research*, 52(19), 5748–5763.

@@ -1,0 +1,73 @@
+instancia_05 inicial: 590.66
+  reinicio 1: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 8, Σp de la mejor: 8)
+  iter 20000: mejor 590.66  actual 595.2
+  reinicio 2: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 14, Σp de la mejor: 16)
+  reinicio 3: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 22, Σp de la mejor: 24)
+  iter 40000: mejor 590.66  actual 595.83
+  reinicio 4: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 30, Σp de la mejor: 32)
+  reinicio 5: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 38, Σp de la mejor: 40)
+  iter 60000: mejor 590.66  actual 595.56
+  reinicio 6: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 44, Σp de la mejor: 48)
+  reinicio 7: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 52, Σp de la mejor: 56)
+  iter 80000: mejor 590.66  actual 597.18
+  reinicio 8: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 60, Σp de la mejor: 64)
+  reinicio 9: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 66, Σp de la mejor: 72)
+  iter 100000: mejor 590.66  actual 595.06
+  reinicio 10: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 74, Σp de la mejor: 80)
+  reinicio 11: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 78, Σp de la mejor: 88)
+  iter 120000: mejor 590.66  actual 596.11
+  reinicio 12: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 84, Σp de la mejor: 96)
+  reinicio 13: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 92, Σp de la mejor: 104)
+  iter 140000: mejor 590.66  actual 595.94
+  reinicio 14: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 98, Σp de la mejor: 112)
+  reinicio 15: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 104, Σp de la mejor: 120)
+  iter 160000: mejor 590.66  actual 595.59
+  reinicio 16: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 112, Σp de la mejor: 128)
+  reinicio 17: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 120, Σp de la mejor: 136)
+  iter 180000: mejor 590.66  actual 595.6
+  reinicio 18: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 128, Σp de la mejor: 144)
+  reinicio 19: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 136, Σp de la mejor: 152)
+  iter 200000: mejor 590.66  actual 595.16
+  reinicio 20: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 144, Σp de la mejor: 160)
+  reinicio 21: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 152, Σp de la mejor: 168)
+  iter 220000: mejor 590.66  actual 590.66
+  reinicio 22: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 156, Σp de la mejor: 176)
+  iter 240000: mejor 590.66  actual 596.96
+  reinicio 23: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 160, Σp de la mejor: 184)
+  reinicio 24: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 160, Σp de la mejor: 192)
+  iter 260000: mejor 590.66  actual 597.74
+  reinicio 25: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 168, Σp de la mejor: 200)
+  reinicio 26: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 172, Σp de la mejor: 208)
+  iter 280000: mejor 590.66  actual 597.08
+  reinicio 27: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 172, Σp de la mejor: 216)
+  reinicio 28: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 176, Σp de la mejor: 224)
+  iter 300000: mejor 590.66  actual 597.37
+  reinicio 29: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 180, Σp de la mejor: 232)
+  reinicio 30: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 180, Σp de la mejor: 240)
+  iter 320000: mejor 590.66  actual 598.32
+  reinicio 31: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 188, Σp de la mejor: 248)
+  iter 340000: mejor 590.66  actual 599.04
+  reinicio 32: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 192, Σp de la mejor: 256)
+  reinicio 33: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 198, Σp de la mejor: 264)
+  iter 360000: mejor 590.66  actual 598.44
+  reinicio 34: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 206, Σp de la mejor: 272)
+  reinicio 35: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 210, Σp de la mejor: 280)
+  iter 380000: mejor 590.66  actual 601.14
+  reinicio 36: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 218, Σp de la mejor: 288)
+  reinicio 37: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 226, Σp de la mejor: 296)
+  iter 400000: mejor 590.66  actual 600.38
+  reinicio 38: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 234, Σp de la mejor: 304)
+  reinicio 39: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 242, Σp de la mejor: 312)
+  iter 420000: mejor 590.66  actual 596.64
+  reinicio 40: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 250, Σp de la mejor: 320)
+  reinicio 41: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 258, Σp de la mejor: 328)
+  iter 440000: mejor 590.66  actual 590.66
+  reinicio 42: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 266, Σp de la mejor: 336)
+  iter 460000: mejor 590.66  actual 599.82
+  reinicio 43: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 274, Σp de la mejor: 344)
+  reinicio 44: mejor 590.66 -> parte de 590.66  (rasgos penalizados: 282, Σp de la mejor: 352)
+  iter 480000: mejor 590.66  actual 600.58
+  iter 500000: mejor 590.66  actual 598.27
+Tabú: 505924 iteraciones, 44 reinicios
+instancia_05 final: 590.66
+No mejora la solución guardada

@@ -1,0 +1,46 @@
+instancia_10 inicial: 971.84
+  reinicio 1: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 22, Σp de la mejor: 22)
+  reinicio 2: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 44, Σp de la mejor: 44)
+  reinicio 3: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 66, Σp de la mejor: 66)
+  reinicio 4: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 88, Σp de la mejor: 88)
+  reinicio 5: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 110, Σp de la mejor: 110)
+  reinicio 6: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 132, Σp de la mejor: 132)
+  reinicio 7: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 154, Σp de la mejor: 154)
+  reinicio 8: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 166, Σp de la mejor: 176)
+  reinicio 9: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 188, Σp de la mejor: 198)
+  reinicio 10: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 210, Σp de la mejor: 220)
+  iter 20000: mejor 971.84  actual 971.84
+  reinicio 11: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 226, Σp de la mejor: 242)
+  reinicio 12: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 244, Σp de la mejor: 264)
+  reinicio 13: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 260, Σp de la mejor: 286)
+  reinicio 14: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 276, Σp de la mejor: 308)
+  reinicio 15: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 290, Σp de la mejor: 330)
+  reinicio 16: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 308, Σp de la mejor: 352)
+  reinicio 17: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 324, Σp de la mejor: 374)
+  reinicio 18: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 344, Σp de la mejor: 396)
+  reinicio 19: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 356, Σp de la mejor: 418)
+  reinicio 20: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 368, Σp de la mejor: 440)
+  iter 40000: mejor 971.84  actual 971.84
+  reinicio 21: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 382, Σp de la mejor: 462)
+  reinicio 22: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 398, Σp de la mejor: 484)
+  reinicio 23: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 410, Σp de la mejor: 506)
+  reinicio 24: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 420, Σp de la mejor: 528)
+  reinicio 25: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 430, Σp de la mejor: 550)
+  reinicio 26: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 440, Σp de la mejor: 572)
+  reinicio 27: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 454, Σp de la mejor: 594)
+  reinicio 28: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 460, Σp de la mejor: 616)
+  reinicio 29: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 476, Σp de la mejor: 638)
+  reinicio 30: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 490, Σp de la mejor: 660)
+  iter 60000: mejor 971.84  actual 971.84
+  reinicio 31: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 500, Σp de la mejor: 682)
+  reinicio 32: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 510, Σp de la mejor: 704)
+  reinicio 33: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 522, Σp de la mejor: 726)
+  reinicio 34: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 534, Σp de la mejor: 748)
+  reinicio 35: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 548, Σp de la mejor: 770)
+  reinicio 36: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 560, Σp de la mejor: 792)
+  reinicio 37: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 578, Σp de la mejor: 814)
+  reinicio 38: mejor 971.84 -> parte de 971.84  (rasgos penalizados: 588, Σp de la mejor: 836)
+  iter 80000: mejor 971.84  actual 977.32
+Tabú: 81921 iteraciones, 38 reinicios
+instancia_10 final: 971.84
+No mejora la solución guardada
